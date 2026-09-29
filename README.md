@@ -100,3 +100,4 @@ Open [http://localhost:3000](http://localhost:3000).
 │           ├── types.ts                # PostgreSQL schema types & converters
 │           └── schema-sql.ts           # In-app SQL migration string
 ```
+"# grn" 
