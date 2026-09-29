@@ -1,0 +1,46 @@
+[
+  {
+    "vendorCode": "VND-501",
+    "vendorName": "Sanyog Precision Castings",
+    "category": "Castings & Forgings",
+    "contactPerson": "Sunil Magar",
+    "phone": "+91 98220 99887",
+    "email": "sunil@sanyogprecision.com",
+    "leadTimeDays": 5,
+    "qualityRating": 4.95,
+    "status": "Preferred"
+  },
+  {
+    "vendorCode": "VND-101",
+    "vendorName": "Apex Precision Logistics",
+    "category": "Mechanical & Precision Hardware",
+    "contactPerson": "Elena Rostova",
+    "email": "elena.r@apex-precision.io",
+    "phone": "+91 98220 11223",
+    "leadTimeDays": 7,
+    "qualityRating": 4.95,
+    "status": "Preferred"
+  },
+  {
+    "vendorCode": "VND-102",
+    "vendorName": "Nordic MicroSensors Inc.",
+    "category": "Optics & Photonic Sensors",
+    "contactPerson": "Sven Lindqvist",
+    "email": "orders@nordic-sensors.se",
+    "phone": "+91 99330 44556",
+    "leadTimeDays": 14,
+    "qualityRating": 4.88,
+    "status": "Active"
+  },
+  {
+    "vendorCode": "VND-103",
+    "vendorName": "Vertex Polymer Corp",
+    "category": "Elastomers & Fluoropolymer Seals",
+    "contactPerson": "Rachel Vance",
+    "email": "sales@vertexpolymers.com",
+    "phone": "+91 97440 77889",
+    "leadTimeDays": 5,
+    "qualityRating": 4.62,
+    "status": "Active"
+  }
+]

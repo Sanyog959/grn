@@ -1,0 +1,334 @@
+[
+  {
+    "id": "admin-super-001",
+    "email": "sales@sanyogengineers.co.in",
+    "fullName": "Plant Administrator",
+    "passwordHash": "51abb90086b68bf1487a5bc9abda24928fcb936340b63ec9f463764bda802902",
+    "role": "ADMIN",
+    "isActive": true,
+    "approvalStatus": "APPROVED",
+    "permissions": {
+      "dashboard": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "purchase": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "grn": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "qc": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "inventory": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "production": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "dispatch": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "masters": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "reports": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "users": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      }
+    },
+    "createdAt": "2026-09-28T07:08:18.897Z",
+    "updatedAt": "2026-09-28T07:08:18.897Z"
+  },
+  {
+    "id": "usr-1790579300198-f472c8",
+    "email": "plant_worker_1790579298431@sanyogengineers.co.in",
+    "fullName": "Ramesh Kumar (QC Dock Inspector)",
+    "passwordHash": "f818f38ae644823337e2977572f63d11839e1123e499b0b925b69acec792120d",
+    "role": "QC",
+    "isActive": true,
+    "approvalStatus": "APPROVED",
+    "permissions": {
+      "dashboard": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "purchase": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "grn": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "qc": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": false,
+        "canApprove": true
+      },
+      "inventory": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "production": {
+        "canView": false,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "dispatch": {
+        "canView": false,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "masters": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "reports": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "users": {
+        "canView": false,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      }
+    },
+    "createdAt": "2026-09-28T07:08:20.199Z",
+    "updatedAt": "2026-09-28T07:08:20.795Z"
+  },
+  {
+    "id": "usr-1790579587548-da7902",
+    "email": "vishalmagar9579@gmail.com",
+    "fullName": "Vishal Magar",
+    "passwordHash": "e1e97f85fa61a5ba31cddca5fb575a9b8591ddc1d88f6d91265aca33d33dd6ed",
+    "role": "STORE",
+    "isActive": true,
+    "approvalStatus": "APPROVED",
+    "permissions": {
+      "dashboard": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "purchase": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "grn": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "qc": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "inventory": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": false,
+        "canApprove": true
+      },
+      "production": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": false,
+        "canApprove": true
+      },
+      "dispatch": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": false,
+        "canApprove": true
+      },
+      "masters": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "reports": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "users": {
+        "canView": false,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      }
+    },
+    "createdAt": "2026-09-28T07:13:07.548Z",
+    "updatedAt": "2026-09-28T18:02:16.406Z"
+  },
+  {
+    "id": "usr-admin-sudhakar",
+    "email": "magarsudhakar51@gmail.com",
+    "fullName": "Sudhakar Magar",
+    "passwordHash": "0d2746b8a25da9e557065538630bda4773be0c2c45b409027d20a0a023035c60",
+    "role": "ADMIN",
+    "isActive": true,
+    "approvalStatus": "APPROVED",
+    "permissions": {
+      "dashboard": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "purchase": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "grn": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "qc": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "inventory": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "production": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "dispatch": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "masters": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "reports": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "users": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      }
+    },
+    "createdAt": "2026-09-28T17:40:05.820Z",
+    "updatedAt": "2026-09-28T17:40:05.822Z"
+  }
+]

@@ -1,0 +1,28 @@
+[
+  {
+    "grnNumber": "GRN-2026-002",
+    "poNumber": "1001",
+    "vendorName": "",
+    "receivedDate": "2026-09-28",
+    "warehouse": "Main Factory Store",
+    "carrierTracking": "12",
+    "inspector": "vishal",
+    "totalItems": 2,
+    "totalValue": 244,
+    "status": "Pending QC",
+    "notes": "nothing"
+  },
+  {
+    "grnNumber": "GRN-2026-001",
+    "poNumber": "PO-2026-101",
+    "vendorName": "Sanyog Precision Castings",
+    "receivedDate": "2026-09-28",
+    "warehouse": "Central Warehouse Bay-3",
+    "carrierTracking": "MH-12-Q-4455",
+    "inspector": "Sudhakar Magar",
+    "totalItems": 500,
+    "totalValue": 125000,
+    "status": "Approved",
+    "notes": "Dock Inward Batch Inspected"
+  }
+]

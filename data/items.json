@@ -1,0 +1,32 @@
+[
+  {
+    "id": "ITEM-1790619982447-0",
+    "grnNumber": "GRN-2026-002",
+    "itemCode": "112",
+    "description": "nothing",
+    "category": "",
+    "poQty": 1,
+    "receivedQty": 2,
+    "acceptedQty": 2,
+    "rejectedQty": 0,
+    "unit": "NOS",
+    "unitPrice": 122,
+    "batchNumber": "3",
+    "qcStatus": "Under Review"
+  },
+  {
+    "id": "item-001",
+    "grnNumber": "GRN-2026-001",
+    "itemCode": "ITM-AL-400",
+    "description": "Aluminum Die Casting Flange 400mm",
+    "category": "Castings",
+    "poQty": 500,
+    "receivedQty": 500,
+    "acceptedQty": 500,
+    "rejectedQty": 0,
+    "unit": "PCS",
+    "unitPrice": 250,
+    "batchNumber": "BATCH-2026-09-A",
+    "qcStatus": "Passed"
+  }
+]
