@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AURA GRN | Enterprise Goods Received Note SaaS with Supabase Backend",
-  description: "Enterprise Goods Received Note (GRN) SaaS with Supabase PostgreSQL cloud database, quality inspection workflows, and supplier management.",
+  title: "SANYOG ENG | Material Inventory & GRN System",
+  description: "SANYOG ENG - Enterprise Goods Received Note (GRN) and Material Inventory Management System with quality inspection workflows and supplier management.",
 };
 
 export default function RootLayout({

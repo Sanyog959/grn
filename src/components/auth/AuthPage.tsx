@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 
 interface AuthPageProps {
@@ -9,7 +9,7 @@ interface AuthPageProps {
 }
 
 export const AuthPage: React.FC<AuthPageProps> = ({ onOpenDbSetup, isConnected }) => {
-  const { signIn, signUp, resetPassword, isLoading } = useAuth();
+  const { signIn, signUp, resetPassword, confirmPasswordReset, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<'signin' | 'register' | 'forgot'>('signin');
 
   // Form states
@@ -20,6 +20,28 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onOpenDbSetup, isConnected }
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Forgot password 2-step flow
+  const [forgotStep, setForgotStep] = useState<'REQUEST' | 'VERIFY'>('REQUEST');
+  const [resetCode, setResetCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+
+  // Check for email reset link parameters on page load
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const codeParam = params.get('resetCode');
+      const emailParam = params.get('email');
+      if (codeParam) {
+        setActiveTab('forgot');
+        setResetCode(codeParam);
+        if (emailParam) setEmail(emailParam);
+        setForgotStep('VERIFY');
+        setSuccessMessage('✓ Verification code detected! Please enter your new password below.');
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,15 +54,53 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onOpenDbSetup, isConnected }
     }
 
     if (activeTab === 'forgot') {
-      setSubmitting(true);
-      const res = await resetPassword(email);
-      setSubmitting(false);
-      if (res.success) {
-        setSuccessMessage(res.message || 'Password reset link sent! Check your inbox.');
-      } else {
-        setErrorMessage(res.error || 'Failed to send reset link.');
+      if (forgotStep === 'REQUEST') {
+        setSubmitting(true);
+        const res = await resetPassword(email);
+        setSubmitting(false);
+        if (res.success) {
+          setSuccessMessage(res.message || '6-digit verification code sent to your email! Please check your inbox & spam.');
+          setForgotStep('VERIFY');
+        } else {
+          setErrorMessage(res.error || 'Failed to send reset code.');
+        }
+        return;
       }
-      return;
+
+      if (forgotStep === 'VERIFY') {
+        if (!resetCode.trim()) {
+          setErrorMessage('Please enter the 6-digit verification code sent to your email.');
+          return;
+        }
+        if (!newPassword) {
+          setErrorMessage('Please enter a new password.');
+          return;
+        }
+        if (newPassword.length < 6) {
+          setErrorMessage('Password must be at least 6 characters long.');
+          return;
+        }
+        if (newPassword !== confirmNewPassword) {
+          setErrorMessage('New passwords do not match.');
+          return;
+        }
+
+        setSubmitting(true);
+        const res = await confirmPasswordReset(email, resetCode.trim(), newPassword);
+        setSubmitting(false);
+        if (res.success) {
+          setSuccessMessage(res.message || 'Password updated successfully! Please sign in with your new password.');
+          setPassword('');
+          setNewPassword('');
+          setConfirmNewPassword('');
+          setResetCode('');
+          setForgotStep('REQUEST');
+          setActiveTab('signin');
+        } else {
+          setErrorMessage(res.error || 'Failed to update password.');
+        }
+        return;
+      }
     }
 
     if (!password) {
@@ -128,11 +188,11 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onOpenDbSetup, isConnected }
               boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)',
             }}
           >
-            M
+            S
           </div>
           <div>
             <div style={{ color: '#fff', fontWeight: 800, fontSize: '15px', letterSpacing: '-0.02em' }}>
-              MIMS Inventory
+              SANYOG ENG
             </div>
             <div style={{ color: '#94a3b8', fontSize: '11px' }}>
               Material Inventory Management System
@@ -204,12 +264,12 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onOpenDbSetup, isConnected }
           <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', margin: '0 0 6px', letterSpacing: '-0.02em' }}>
             {activeTab === 'signin' && 'Sign In to Plant Portal'}
             {activeTab === 'register' && 'Register New Employee'}
-            {activeTab === 'forgot' && 'Reset Your Password'}
+            {activeTab === 'forgot' && (forgotStep === 'REQUEST' ? 'Reset Your Password' : 'Enter Verification Code')}
           </h2>
           <p style={{ fontSize: '13.5px', color: '#64748b', margin: 0 }}>
             {activeTab === 'signin' && 'Authorized personnel access to Purchase, GRN, QC & Store'}
             {activeTab === 'register' && 'Registration is sent to Plant Administrator for role assignment'}
-            {activeTab === 'forgot' && 'Enter your registered email to receive a password reset link'}
+            {activeTab === 'forgot' && (forgotStep === 'REQUEST' ? 'Enter your registered email to receive a 6-digit verification code' : 'Check your inbox for the 6-digit code and choose your new password')}
           </p>
         </div>
 
@@ -353,6 +413,112 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onOpenDbSetup, isConnected }
             />
           </div>
 
+          {activeTab === 'forgot' && forgotStep === 'VERIFY' && (
+            <>
+              <div>
+                <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 700, color: '#334155', marginBottom: '5px' }}>
+                  6-Digit Verification Code *
+                </label>
+                <input
+                  type="text"
+                  placeholder="• • • • • •"
+                  maxLength={6}
+                  value={resetCode}
+                  onChange={(e) => setResetCode(e.target.value.replace(/\D/g, ''))}
+                  required
+                  autoFocus
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: '8px',
+                    border: '2px solid #6366f1',
+                    fontSize: '22px',
+                    fontWeight: 800,
+                    letterSpacing: '8px',
+                    textAlign: 'center',
+                    fontFamily: 'monospace',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    background: '#f8faff',
+                    color: '#1e1b4b',
+                  }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                  <span style={{ fontSize: '11.5px', color: '#64748b' }}>Code sent to {email}</span>
+                  <button
+                    type="button"
+                    disabled={submitting}
+                    onClick={async () => {
+                      setSubmitting(true);
+                      const res = await resetPassword(email);
+                      setSubmitting(false);
+                      if (res.success) {
+                        setSuccessMessage('✓ A fresh 6-digit verification code has been dispatched to your email.');
+                      } else {
+                        setErrorMessage(res.error || 'Failed to resend code.');
+                      }
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#4f46e5',
+                      fontSize: '11.5px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      padding: 0,
+                    }}
+                  >
+                    Resend Code
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 700, color: '#334155', marginBottom: '5px' }}>
+                  New Password *
+                </label>
+                <input
+                  type="password"
+                  placeholder="At least 6 characters"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 700, color: '#334155', marginBottom: '5px' }}>
+                  Confirm New Password *
+                </label>
+                <input
+                  type="password"
+                  placeholder="Repeat new password"
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+            </>
+          )}
+
           {activeTab !== 'forgot' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
@@ -364,6 +530,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onOpenDbSetup, isConnected }
                     type="button"
                     onClick={() => {
                       setActiveTab('forgot');
+                      setForgotStep('REQUEST');
                       setErrorMessage(null);
                       setSuccessMessage(null);
                     }}
@@ -460,17 +627,38 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onOpenDbSetup, isConnected }
             {submitting ? 'Processing...' : (
               activeTab === 'signin' ? 'Sign In to Portal' :
               activeTab === 'register' ? 'Register Account' :
-              'Send Password Reset Link'
+              forgotStep === 'REQUEST' ? 'Send 6-Digit Verification Code' : 'Save & Reset Password'
             )}
           </button>
         </form>
 
         {activeTab === 'forgot' && (
-          <div style={{ textAlign: 'center', marginTop: '16px' }}>
+          <div style={{ textAlign: 'center', marginTop: '16px', display: 'flex', justifyContent: 'center', gap: '16px' }}>
+            {forgotStep === 'VERIFY' && (
+              <button
+                type="button"
+                onClick={() => {
+                  setForgotStep('REQUEST');
+                  setErrorMessage(null);
+                  setSuccessMessage(null);
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#4f46e5',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                ← Change Email
+              </button>
+            )}
             <button
               type="button"
               onClick={() => {
                 setActiveTab('signin');
+                setForgotStep('REQUEST');
                 setErrorMessage(null);
                 setSuccessMessage(null);
               }}

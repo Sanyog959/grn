@@ -39,7 +39,7 @@ function getTransporter() {
  * Universal email sender with automatic fallback to preview mode if SMTP credentials are not yet configured
  */
 export async function sendEmail({ to, subject, html, text }: EmailOptions): Promise<EmailSendResult> {
-  const from = process.env.SMTP_FROM || '"MIMS Inventory System" <notifications@company.com>';
+  const from = process.env.SMTP_FROM || '"SANYOG ENG" <sales@sanyogengineers.co.in>';
   const transporter = getTransporter();
 
   if (!transporter) {
@@ -88,11 +88,11 @@ export async function notifyAdminNewUserRegistered(params: {
   registeredAt?: string;
 }) {
   const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.SMTP_USER || 'admin@company.com';
-  const subject = `⚠️ [MIMS Action Required] New User Registration Pending Approval: ${params.userName}`;
+  const subject = `⚠️ [SANYOG ENG Action Required] New User Registration Pending Approval: ${params.userName}`;
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
       <h2 style="color: #6b21a8; margin-top: 0;">New User Awaiting Admin Approval</h2>
-      <p style="color: #334155; font-size: 15px;">A new employee has registered for the Material Inventory Management System (MIMS) and requires access authorization.</p>
+      <p style="color: #334155; font-size: 15px;">A new employee has registered for the Material Inventory Management System (SANYOG ENG) and requires access authorization.</p>
       
       <div style="background: #f8fafc; padding: 16px; border-radius: 6px; margin: 20px 0; border: 1px solid #e2e8f0;">
         <p style="margin: 6px 0;"><strong>Name:</strong> ${params.userName}</p>
@@ -100,7 +100,7 @@ export async function notifyAdminNewUserRegistered(params: {
         <p style="margin: 6px 0;"><strong>Status:</strong> <span style="background: #fef3c7; color: #b45309; padding: 2px 8px; border-radius: 4px; font-weight: 700;">PENDING APPROVAL</span></p>
       </div>
 
-      <p style="color: #64748b; font-size: 13px;">Please log in to the MIMS Admin Panel to review and assign their role and module permissions.</p>
+      <p style="color: #64748b; font-size: 13px;">Please log in to the SANYOG ENG Admin Panel to review and assign their role and module permissions.</p>
     </div>
   `;
   return sendEmail({ to: adminEmail, subject, html });
@@ -114,12 +114,12 @@ export async function notifyUserApproved(params: {
   userEmail: string;
   role: string;
 }) {
-  const subject = `✓ [MIMS] Your Account Has Been Approved - Access Granted (${params.role})`;
+  const subject = `✓ [SANYOG ENG] Your Account Has Been Approved - Access Granted (${params.role})`;
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
       <h2 style="color: #059669; margin-top: 0;">Account Access Approved</h2>
       <p style="color: #334155; font-size: 15px;">Hello <strong>${params.userName}</strong>,</p>
-      <p style="color: #334155; font-size: 15px;">Your MIMS Material Inventory account has been reviewed and approved by the system administrator.</p>
+      <p style="color: #334155; font-size: 15px;">Your SANYOG ENG Material Inventory account has been reviewed and approved by the system administrator.</p>
       
       <div style="background: #f0fdf4; padding: 16px; border-radius: 6px; margin: 20px 0; border: 1px solid #bbf7d0;">
         <p style="margin: 6px 0;"><strong>Assigned Role:</strong> <span style="background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 4px; font-weight: 700;">${params.role}</span></p>
@@ -152,7 +152,7 @@ export async function notifyGrnCreated(params: {
 }) {
   const recipients = getAdminAndQaRecipients(params.recipientEmails);
 
-  const subject = `📦 [MIMS GRN Inward] New Material Received: ${params.grnNumber} (PO: ${params.poNumber})`;
+  const subject = `📦 [SANYOG ENG GRN Inward] New Material Received: ${params.grnNumber} (PO: ${params.poNumber})`;
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
       <h2 style="color: #1d4ed8; margin-top: 0;">Goods Received Note Logged (QC Pending)</h2>
@@ -189,7 +189,7 @@ export async function notifyQcCompleted(params: {
   const isApproved = params.status === 'Approved';
   const color = isApproved ? '#059669' : '#dc2626';
 
-  const subject = `${isApproved ? '✓' : '⚠️'} [MIMS QC Inspection] Result for ${params.grnNumber}: ${params.status.toUpperCase()}`;
+  const subject = `${isApproved ? '✓' : '⚠️'} [SANYOG ENG QC Inspection] Result for ${params.grnNumber}: ${params.status.toUpperCase()}`;
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
       <h2 style="color: ${color}; margin-top: 0;">QC Inspection Complete: ${params.status}</h2>
@@ -231,7 +231,7 @@ export async function notifyStockMovement(params: {
   const recipients = getAdminAndQaRecipients(params.recipientEmails);
 
   const sign = params.changeQty > 0 ? '+' : '';
-  const subject = `📊 [MIMS Stock Audit] ${params.itemCode}: ${params.previousStock} → ${params.newStock} (${sign}${params.changeQty})`;
+  const subject = `📊 [SANYOG ENG Stock Audit] ${params.itemCode}: ${params.previousStock} → ${params.newStock} (${sign}${params.changeQty})`;
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
       <h2 style="color: #0f172a; margin-top: 0;">Stock Movement Logged in Ledger</h2>
@@ -246,7 +246,7 @@ export async function notifyStockMovement(params: {
         ${params.remarks ? `<p style="margin: 6px 0;"><strong>Remarks:</strong> ${params.remarks}</p>` : ''}
       </div>
 
-      <p style="color: #64748b; font-size: 12px;">This immutable audit entry has been logged to the MIMS double-entry ledger and broadcast to Administrator and QA.</p>
+      <p style="color: #64748b; font-size: 12px;">This immutable audit entry has been logged to the SANYOG ENG double-entry ledger and broadcast to Administrator and QA.</p>
     </div>
   `;
   return sendEmail({ to: recipients, subject, html });
@@ -269,7 +269,7 @@ export async function notifyDispatchCreated(params: {
     process.env.DISPATCH_TEAM_EMAIL || process.env.SMTP_USER || 'dispatch@company.com',
   ].filter(Boolean) as string[];
 
-  const subject = `🚚 [MIMS Dispatch] Outbound Delivery Challan Generated: ${params.dispatchNumber}`;
+  const subject = `🚚 [SANYOG ENG Dispatch] Outbound Delivery Challan Generated: ${params.dispatchNumber}`;
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
       <h2 style="color: #4338ca; margin-top: 0;">Material Dispatch Challan Ready</h2>
@@ -364,7 +364,7 @@ export async function notifyQcDecisionToAdmin(params: {
   const icon = isApproved ? '✓' : isRejected ? '❌' : '💬';
   const decisionLabel = isApproved ? 'APPROVED' : isRejected ? 'REJECTED' : 'REMARK / CONDITIONAL';
 
-  const subject = `${icon} [MIMS QC Decision for Admin] ${params.grnNumber} - ${params.itemCode}: ${decisionLabel}`;
+  const subject = `${icon} [SANYOG ENG QC Decision for Admin] ${params.grnNumber} - ${params.itemCode}: ${decisionLabel}`;
 
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
@@ -412,7 +412,7 @@ export async function notifyProductionIssueCreated(params: {
   recipientEmails?: string[];
 }) {
   const recipients = getAdminAndQaRecipients(params.recipientEmails);
-  const subject = `⚙️ [MIMS Production Issue] ${params.quantityIssued} units of ${params.itemCode} Issued to ${params.station}`;
+  const subject = `⚙️ [SANYOG ENG Production Issue] ${params.quantityIssued} units of ${params.itemCode} Issued to ${params.station}`;
 
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
@@ -449,7 +449,7 @@ export async function notifyFinishedGoodsAdded(params: {
   recipientEmails?: string[];
 }) {
   const recipients = getAdminAndQaRecipients(params.recipientEmails);
-  const subject = `🏭 [MIMS Production Complete] ${params.quantityProduced} units of ${params.productName} Added to FG Stock`;
+  const subject = `🏭 [SANYOG ENG Production Complete] ${params.quantityProduced} units of ${params.productName} Added to FG Stock`;
 
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
@@ -503,7 +503,7 @@ export async function notifyProductionIssueAssigned(params: {
         ${params.remarks ? `<p style="margin: 6px 0;"><strong>Remarks:</strong> ${params.remarks}</p>` : ''}
       </div>
 
-      <p style="color: #64748b; font-size: 12px;">Login to MIMS Production Floor to click 'Receive Stock'.</p>
+      <p style="color: #64748b; font-size: 12px;">Login to SANYOG ENG Production Floor to click 'Receive Stock'.</p>
     </div>
   `;
   return sendEmail({ to: recipients, subject, html });
@@ -572,4 +572,55 @@ export async function notifyProductionReportSubmitted(params: {
   `;
   return sendEmail({ to: recipients, subject, html });
 }
+
+/**
+ * 12. Password Reset OTP & Link Notification
+ */
+export async function notifyPasswordResetOtp(params: {
+  userEmail: string;
+  userName: string;
+  otpCode: string;
+  resetUrl?: string;
+}) {
+  const subject = `🔒 [SANYOG ENG] Your Password Reset Code: ${params.otpCode}`;
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 580px; margin: 0 auto; padding: 32px 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <div style="display: inline-block; width: 44px; height: 44px; line-height: 44px; border-radius: 10px; background: #0f172a; color: #ffffff; font-weight: 800; font-size: 20px;">
+          S
+        </div>
+        <h2 style="color: #0f172a; margin: 12px 0 4px 0; font-size: 20px; font-weight: 800; letter-spacing: -0.02em;">SANYOG ENG</h2>
+        <p style="color: #64748b; font-size: 13px; margin: 0;">Material Inventory Management System</p>
+      </div>
+
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 24px; text-align: center; margin: 20px 0;">
+        <p style="color: #334155; font-size: 14px; margin: 0 0 16px 0;">Hello <strong>${params.userName}</strong>,</p>
+        <p style="color: #475569; font-size: 13.5px; margin: 0 0 18px 0; line-height: 1.5;">We received a request to reset your password for your SANYOG ENG Plant Portal account. Use the 6-digit verification code below to set a new password:</p>
+        
+        <div style="display: inline-block; background: #0f172a; color: #38bdf8; font-family: monospace; font-size: 28px; font-weight: 800; letter-spacing: 8px; padding: 14px 28px; border-radius: 8px; margin: 8px 0 14px 0; border: 1px solid #1e293b;">
+          ${params.otpCode}
+        </div>
+        
+        <p style="color: #dc2626; font-size: 12px; font-weight: 600; margin: 8px 0 0 0;">⚠️ This code expires in 15 minutes.</p>
+      </div>
+
+      ${params.resetUrl ? `
+        <div style="text-align: center; margin: 24px 0;">
+          <a href="${params.resetUrl}" style="background-color: #2563eb; color: #ffffff; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 700; text-decoration: none; display: inline-block;">
+            Reset Password Directly →
+          </a>
+        </div>
+      ` : ''}
+
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; margin-top: 24px;">
+        <p style="color: #94a3b8; font-size: 12px; margin: 0; line-height: 1.5;">
+          If you did not request a password reset, please ignore this email or notify your system administrator. Your current password remains safe.
+        </p>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({ to: params.userEmail, subject, html });
+}
+
 

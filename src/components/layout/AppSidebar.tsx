@@ -368,11 +368,11 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     fontWeight: 800,
                   }}
                 >
-                  M
+                  S
                 </div>
                 <div>
                   <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>
-                    MIMS Plant OS
+                    SANYOG ENG
                   </div>
                   <div style={{ fontSize: '10.5px', color: '#64748b' }}>Operations Portal</div>
                 </div>
@@ -486,7 +486,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 gap: '6px',
               }}
             >
-              <span>Factory Plant #1</span>
+              <span>SANYOG ENG - Plant #1</span>
             </div>
           </div>
           <span

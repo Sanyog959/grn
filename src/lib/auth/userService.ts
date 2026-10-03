@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { UserRole, UserProfile, ApprovalStatus, ModulePermission, SystemModule, DEFAULT_ROLE_PERMISSIONS } from '@/types/auth';
-import { notifyAdminNewUserRegistered, notifyUserApproved } from '@/lib/email/mailer';
+import { notifyAdminNewUserRegistered, notifyUserApproved, notifyPasswordResetOtp } from '@/lib/email/mailer';
 
 export interface StoredUser {
   id: string;
@@ -13,6 +13,8 @@ export interface StoredUser {
   isActive: boolean;
   approvalStatus: ApprovalStatus;
   permissions: Record<SystemModule, ModulePermission>;
+  resetCode?: string;
+  resetCodeExpiry?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -324,3 +326,99 @@ export function bulkUpdateAccounts(params: {
   saveStoredUsers(users);
   return { success: true };
 }
+
+/**
+ * Request Password Reset: Generates 6-digit OTP and dispatches email via live SMTP
+ */
+export async function requestPasswordReset(
+  email: string,
+  origin?: string
+): Promise<{ success: boolean; message?: string; error?: string }> {
+  const normalized = email.toLowerCase().trim();
+  const users = getAllStoredUsers();
+  const user = users.find((u) => u.email.toLowerCase().trim() === normalized);
+
+  if (!user) {
+    return {
+      success: false,
+      error: 'No account found with this email address. Please verify your email or register.',
+    };
+  }
+
+  // Generate a cryptographically random 6-digit code
+  const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiry = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutes validity
+
+  user.resetCode = resetCode;
+  user.resetCodeExpiry = expiry;
+  user.updatedAt = new Date().toISOString();
+  saveStoredUsers(users);
+
+  const resetUrl = origin ? `${origin}/?resetCode=${resetCode}&email=${encodeURIComponent(normalized)}` : undefined;
+
+  try {
+    await notifyPasswordResetOtp({
+      userEmail: user.email,
+      userName: user.fullName || 'User',
+      otpCode: resetCode,
+      resetUrl,
+    });
+
+    return {
+      success: true,
+      message: `Password reset verification code sent to ${user.email}! Please check your email inbox and spam folder.`,
+    };
+  } catch (err: unknown) {
+    console.error('Failed to dispatch password reset email:', err);
+    return {
+      success: false,
+      error: 'Failed to send reset email. Please contact the administrator directly.',
+    };
+  }
+}
+
+/**
+ * Verify OTP Code and Update Password
+ */
+export function verifyAndResetPassword(params: {
+  email: string;
+  code: string;
+  newPassword: string;
+}): { success: boolean; message?: string; error?: string } {
+  const normalized = params.email.toLowerCase().trim();
+  const users = getAllStoredUsers();
+  const user = users.find((u) => u.email.toLowerCase().trim() === normalized);
+
+  if (!user) {
+    return { success: false, error: 'No account found with this email address.' };
+  }
+
+  if (!user.resetCode || !user.resetCodeExpiry) {
+    return { success: false, error: 'No active password reset request found. Please request a new code.' };
+  }
+
+  if (Date.now() > new Date(user.resetCodeExpiry).getTime()) {
+    return { success: false, error: 'This reset code has expired (15 min limit). Please request a new code.' };
+  }
+
+  if (user.resetCode.trim() !== params.code.trim()) {
+    return { success: false, error: 'Invalid verification code. Please check your email and try again.' };
+  }
+
+  if (!params.newPassword || params.newPassword.length < 6) {
+    return { success: false, error: 'Password must be at least 6 characters long.' };
+  }
+
+  // Update password and clear reset code
+  user.passwordHash = hashPassword(params.newPassword);
+  delete user.resetCode;
+  delete user.resetCodeExpiry;
+  user.updatedAt = new Date().toISOString();
+  saveStoredUsers(users);
+
+  return {
+    success: true,
+    message: 'Your password has been successfully reset! You can now sign in with your new password.',
+  };
+}
+

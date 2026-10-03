@@ -75,8 +75,8 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
 
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '14.5px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
-              MIMS
+            <span style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
+              SANYOG ENG
             </span>
             <span
               style={{

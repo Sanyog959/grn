@@ -274,8 +274,8 @@ export const UserManagementView: React.FC = () => {
           eventType: 'CUSTOM',
           payload: {
             to: testEmailTo,
-            subject: '✓ [MIMS Test] SMTP Email Notification System Active',
-            html: '<p>This is a verification email from your Material Inventory Management System (MIMS).</p>',
+            subject: '✓ [SANYOG ENG Test] SMTP Email Notification System Active',
+            html: '<p>This is a verification email from your SANYOG ENG Material Inventory Management System.</p>',
           },
         }),
       });

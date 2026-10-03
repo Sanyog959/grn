@@ -69,7 +69,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         <div className="modal-header" style={{ paddingBottom: '16px' }}>
           <div>
             <h2 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: '#0f172a' }}>
-              {mode === 'login' ? 'Sign In to MIMS' : 'Create Factory User Account'}
+              {mode === 'login' ? 'Sign In to SANYOG ENG' : 'Create Factory User Account'}
             </h2>
             <p style={{ fontSize: '12.5px', color: '#64748b', marginTop: '2px', margin: 0 }}>
               Material Inventory Management System · Supabase Authentication

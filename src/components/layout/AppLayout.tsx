@@ -72,7 +72,7 @@ const AppContent: React.FC<AppLayoutProps> = ({
             ⚙️
           </div>
           <div style={{ fontSize: '16px', fontWeight: 700, letterSpacing: '-0.01em' }}>
-            Connecting to MIMS Plant Portal...
+            Connecting to SANYOG ENG Plant Portal...
           </div>
           <div style={{ fontSize: '13px', color: '#94a3b8', marginTop: '6px' }}>
             Verifying security session and permissions

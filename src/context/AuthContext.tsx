@@ -36,6 +36,11 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ success: boolean; message?: string; error?: string }>;
+  confirmPasswordReset: (
+    email: string,
+    code: string,
+    newPassword: string
+  ) => Promise<{ success: boolean; message?: string; error?: string }>;
   refreshProfile: () => Promise<void>;
   updateUserRole: (userId: string, newRole: UserRole) => Promise<{ success: boolean; error?: string }>;
   approveUser: (
@@ -513,31 +518,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Password Reset
+  // Password Reset - Request OTP Code via live SMTP
   const resetPassword = async (email: string) => {
     const normalizedEmail = email.toLowerCase().trim();
-    if (supabase) {
-      try {
-        const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}/` : undefined;
-        const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
-          redirectTo: redirectUrl,
-        });
-        if (error) {
-          return { success: false, error: error.message };
-        }
-        return {
-          success: true,
-          message: 'Password reset link sent! Please check your email inbox and spam folder.',
-        };
-      } catch (err: unknown) {
-        return { success: false, error: err instanceof Error ? err.message : 'Reset link dispatch failed' };
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'REQUEST_CODE', email: normalizedEmail }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, error: data.error || 'Failed to send reset code.' };
       }
+      return { success: true, message: data.message };
+    } catch (err: unknown) {
+      return { success: false, error: err instanceof Error ? err.message : 'Network error sending reset code.' };
     }
+  };
 
-    return {
-      success: true,
-      message: 'Password reset request dispatched to administrator.',
-    };
+  // Confirm Password Reset with Code & New Password
+  const confirmPasswordReset = async (email: string, code: string, newPassword: string) => {
+    const normalizedEmail = email.toLowerCase().trim();
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'RESET_PASSWORD',
+          email: normalizedEmail,
+          code,
+          newPassword,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, error: data.error || 'Failed to update password.' };
+      }
+      return { success: true, message: data.message };
+    } catch (err: unknown) {
+      return { success: false, error: err instanceof Error ? err.message : 'Network error resetting password.' };
+    }
   };
 
   // Sign Out
@@ -732,6 +753,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signUp,
         signOut,
         resetPassword,
+        confirmPasswordReset,
         refreshProfile,
         updateUserRole,
         approveUser,

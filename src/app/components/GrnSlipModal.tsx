@@ -81,7 +81,7 @@ export const GrnSlipModal: React.FC<GrnSlipModalProps> = ({
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '22px' }}>✦</span>
                 <h1 style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.02em' }}>
-                  AURA LOGISTICS & SUPPLY CHAIN
+                  SANYOG ENG
                 </h1>
               </div>
               <p style={{ fontSize: '12px', color: '#475569', marginTop: '2px' }}>
