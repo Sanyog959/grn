@@ -14,6 +14,13 @@ import {
   Eye,
 } from 'lucide-react';
 
+const PRESET_CUSTOMERS = [
+  { name: 'Tata Motors Ltd (Pune Plant)', email: 'procurement@tatamotors.com', address: 'Pimpri Industrial Zone, Pune' },
+  { name: 'Bharat Forge Infrastructure', email: 'orders@bharatforge.com', address: 'Mundhwa Industrial Area, Pune' },
+  { name: 'Mahindra Heavy Machinery', email: 'supply@mahindra.com', address: 'Chakan Industrial Hub, Phase 2, Pune' },
+  { name: 'Apex Industrial Corp', email: 'client@apexcorp.com', address: 'Bhosari MIDC, Pune' },
+];
+
 export const DispatchManagementView: React.FC = () => {
   const { profile } = useAuth();
   const [dispatches, setDispatches] = useState<DispatchRecord[]>([]);
@@ -35,6 +42,15 @@ export const DispatchManagementView: React.FC = () => {
   const [gatePass, setGatePass] = useState('');
   const [responsiblePerson, setResponsiblePerson] = useState(profile?.fullName || 'Dispatch Officer');
   const [notes, setNotes] = useState('');
+
+  const handleCustomerChange = (val: string) => {
+    setCustomer(val);
+    const matched = PRESET_CUSTOMERS.find((c) => c.name.toLowerCase() === val.trim().toLowerCase());
+    if (matched) {
+      if (!customerEmail) setCustomerEmail(matched.email);
+      if (!destination) setDestination(matched.address);
+    }
+  };
 
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const showToast = (msg: string) => {
@@ -537,10 +553,18 @@ export const DispatchManagementView: React.FC = () => {
                     type="text"
                     required
                     placeholder="e.g. Apex Industrial Corp"
+                    list="preset-customers-list"
                     value={customer}
-                    onChange={(e) => setCustomer(e.target.value)}
+                    onChange={(e) => handleCustomerChange(e.target.value)}
                     className="form-input"
                   />
+                  <datalist id="preset-customers-list">
+                    {PRESET_CUSTOMERS.map((c) => (
+                      <option key={c.name} value={c.name}>
+                        {c.address}
+                      </option>
+                    ))}
+                  </datalist>
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
