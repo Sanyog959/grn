@@ -19,8 +19,7 @@ export interface StoredUser {
   updatedAt: string;
 }
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const USERS_FILE = path.join(DATA_DIR, 'users.json');
+import { getWritableDataFilePath, safeWriteJson } from '@/lib/storage/dataFile';
 
 const ADMIN_EMAILS = [
   'sales@sanyogengineers.co.in',
@@ -38,18 +37,23 @@ function hashPassword(password: string): string {
   return crypto.createHash('sha256').update(password + '_mims_secure_salt_2026').digest('hex');
 }
 
-function ensureDataFile() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
+// In-memory cache for high-speed access and serverless persistence across requests
+let memoryUsersCache: StoredUser[] | null = null;
 
-  if (!fs.existsSync(USERS_FILE)) {
-    // Seed default administrator account matching company email in .env.local
+function getUsersFilePath(): string {
+  return getWritableDataFilePath('users.json');
+}
+
+function ensureDataFile() {
+  const usersPath = getUsersFilePath();
+  const bundledPath = path.join(process.cwd(), 'data', 'users.json');
+
+  if (!fs.existsSync(usersPath) && !fs.existsSync(bundledPath)) {
     const defaultAdmin: StoredUser = {
       id: 'admin-super-001',
       email: ADMIN_EMAILS[0],
       fullName: 'Plant Administrator',
-      passwordHash: hashPassword('Admin123!'), // Default initial password if not overridden
+      passwordHash: hashPassword('Admin123!'),
       role: 'ADMIN',
       isActive: true,
       approvalStatus: 'APPROVED',
@@ -57,25 +61,58 @@ function ensureDataFile() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    fs.writeFileSync(USERS_FILE, JSON.stringify([defaultAdmin], null, 2), 'utf8');
+    safeWriteJson(usersPath, [defaultAdmin]);
   }
 }
 
 export function getAllStoredUsers(): StoredUser[] {
-  ensureDataFile();
-  try {
-    const raw = fs.readFileSync(USERS_FILE, 'utf8');
-    const users: StoredUser[] = JSON.parse(raw);
-    return users;
-  } catch (err) {
-    console.error('Failed to read users file:', err);
-    return [];
+  if (memoryUsersCache && memoryUsersCache.length > 0) {
+    return memoryUsersCache;
   }
+
+  ensureDataFile();
+  const usersPath = getUsersFilePath();
+  const bundledPath = path.join(process.cwd(), 'data', 'users.json');
+
+  // Try reading from writable path
+  try {
+    if (fs.existsSync(usersPath)) {
+      const raw = fs.readFileSync(usersPath, 'utf8');
+      const parsed: StoredUser[] = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        memoryUsersCache = parsed;
+        return memoryUsersCache;
+      }
+    }
+  } catch (err) {
+    console.warn('[Users Storage] Error reading writable users file:', err);
+  }
+
+  // Fallback to bundled data/users.json
+  try {
+    if (fs.existsSync(bundledPath)) {
+      const raw = fs.readFileSync(bundledPath, 'utf8');
+      const parsed: StoredUser[] = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        memoryUsersCache = parsed;
+        return memoryUsersCache;
+      }
+    }
+  } catch (err) {
+    console.error('[Users Storage] Error reading bundled users file:', err);
+  }
+
+  memoryUsersCache = [];
+  return memoryUsersCache;
 }
 
 export function saveStoredUsers(users: StoredUser[]) {
-  ensureDataFile();
-  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
+  // Always update in-memory cache first
+  memoryUsersCache = users;
+
+  // Persist to writable path safely (handles EROFS without crashing)
+  const usersPath = getUsersFilePath();
+  safeWriteJson(usersPath, users);
 }
 
 export function findUserByEmail(email: string): StoredUser | null {

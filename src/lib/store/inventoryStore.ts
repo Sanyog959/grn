@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { getWritableDataFilePath, safeWriteJson } from '@/lib/storage/dataFile';
 import {
   GRNOrder,
   GRNItem,
@@ -14,17 +15,16 @@ import {
   MasterCatalogItem,
 } from '@/types/inventory';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const VENDORS_FILE = path.join(DATA_DIR, 'vendors.json');
-const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
-const ITEMS_FILE = path.join(DATA_DIR, 'items.json');
-const PURCHASE_ORDERS_FILE = path.join(DATA_DIR, 'purchase_orders.json');
-const STOCK_LEDGER_FILE = path.join(DATA_DIR, 'stock_ledger.json');
-const INWARD_BATCHES_FILE = path.join(DATA_DIR, 'inward_batches.json');
-const PRODUCTION_ISSUES_FILE = path.join(DATA_DIR, 'production_issues.json');
-const FINISHED_GOODS_FILE = path.join(DATA_DIR, 'finished_goods.json');
-const DISPATCHES_FILE = path.join(DATA_DIR, 'dispatches.json');
-const CATALOG_ITEMS_FILE = path.join(DATA_DIR, 'catalog_items.json');
+const VENDORS_FILE = getWritableDataFilePath('vendors.json');
+const ORDERS_FILE = getWritableDataFilePath('orders.json');
+const ITEMS_FILE = getWritableDataFilePath('items.json');
+const PURCHASE_ORDERS_FILE = getWritableDataFilePath('purchase_orders.json');
+const STOCK_LEDGER_FILE = getWritableDataFilePath('stock_ledger.json');
+const INWARD_BATCHES_FILE = getWritableDataFilePath('inward_batches.json');
+const PRODUCTION_ISSUES_FILE = getWritableDataFilePath('production_issues.json');
+const FINISHED_GOODS_FILE = getWritableDataFilePath('finished_goods.json');
+const DISPATCHES_FILE = getWritableDataFilePath('dispatches.json');
+const CATALOG_ITEMS_FILE = getWritableDataFilePath('catalog_items.json');
 
 const INITIAL_PURCHASE_ORDERS: PurchaseOrder[] = [
   {
@@ -173,38 +173,35 @@ const INITIAL_CATALOG_ITEMS: MasterCatalogItem[] = [
 ];
 
 function ensureStoreFiles() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
   if (!fs.existsSync(VENDORS_FILE)) {
-    fs.writeFileSync(VENDORS_FILE, JSON.stringify(INITIAL_VENDORS, null, 2), 'utf8');
+    safeWriteJson(VENDORS_FILE, INITIAL_VENDORS);
   }
   if (!fs.existsSync(ORDERS_FILE)) {
-    fs.writeFileSync(ORDERS_FILE, JSON.stringify([], null, 2), 'utf8');
+    safeWriteJson(ORDERS_FILE, []);
   }
   if (!fs.existsSync(ITEMS_FILE)) {
-    fs.writeFileSync(ITEMS_FILE, JSON.stringify([], null, 2), 'utf8');
+    safeWriteJson(ITEMS_FILE, []);
   }
   if (!fs.existsSync(STOCK_LEDGER_FILE)) {
-    fs.writeFileSync(STOCK_LEDGER_FILE, JSON.stringify(INITIAL_STOCK_LEDGER, null, 2), 'utf8');
+    safeWriteJson(STOCK_LEDGER_FILE, INITIAL_STOCK_LEDGER);
   }
   if (!fs.existsSync(INWARD_BATCHES_FILE)) {
-    fs.writeFileSync(INWARD_BATCHES_FILE, JSON.stringify([], null, 2), 'utf8');
+    safeWriteJson(INWARD_BATCHES_FILE, []);
   }
   if (!fs.existsSync(PRODUCTION_ISSUES_FILE)) {
-    fs.writeFileSync(PRODUCTION_ISSUES_FILE, JSON.stringify([], null, 2), 'utf8');
+    safeWriteJson(PRODUCTION_ISSUES_FILE, []);
   }
   if (!fs.existsSync(FINISHED_GOODS_FILE)) {
-    fs.writeFileSync(FINISHED_GOODS_FILE, JSON.stringify([], null, 2), 'utf8');
+    safeWriteJson(FINISHED_GOODS_FILE, []);
   }
   if (!fs.existsSync(DISPATCHES_FILE)) {
-    fs.writeFileSync(DISPATCHES_FILE, JSON.stringify([], null, 2), 'utf8');
+    safeWriteJson(DISPATCHES_FILE, []);
   }
   if (!fs.existsSync(PURCHASE_ORDERS_FILE)) {
-    fs.writeFileSync(PURCHASE_ORDERS_FILE, JSON.stringify(INITIAL_PURCHASE_ORDERS, null, 2), 'utf8');
+    safeWriteJson(PURCHASE_ORDERS_FILE, INITIAL_PURCHASE_ORDERS);
   }
   if (!fs.existsSync(CATALOG_ITEMS_FILE)) {
-    fs.writeFileSync(CATALOG_ITEMS_FILE, JSON.stringify(INITIAL_CATALOG_ITEMS, null, 2), 'utf8');
+    safeWriteJson(CATALOG_ITEMS_FILE, INITIAL_CATALOG_ITEMS);
   }
 }
 
@@ -220,7 +217,7 @@ export function getStoredVendors(): Vendor[] {
 
 export function saveStoredVendors(vendors: Vendor[]) {
   ensureStoreFiles();
-  fs.writeFileSync(VENDORS_FILE, JSON.stringify(vendors, null, 2), 'utf8');
+  safeWriteJson(VENDORS_FILE, vendors);
 }
 
 export function addStoredVendor(vendor: Vendor) {
@@ -265,7 +262,7 @@ export function getStoredCatalogItems(): MasterCatalogItem[] {
 
 export function saveStoredCatalogItems(items: MasterCatalogItem[]) {
   ensureStoreFiles();
-  fs.writeFileSync(CATALOG_ITEMS_FILE, JSON.stringify(items, null, 2), 'utf8');
+  safeWriteJson(CATALOG_ITEMS_FILE, items);
 }
 
 export function addOrUpdateStoredCatalogItem(item: MasterCatalogItem): MasterCatalogItem {
@@ -310,7 +307,7 @@ export function getStoredOrders(): GRNOrder[] {
 
 export function saveStoredOrders(orders: GRNOrder[]) {
   ensureStoreFiles();
-  fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2), 'utf8');
+  safeWriteJson(ORDERS_FILE, orders);
 }
 
 export function addStoredOrder(order: GRNOrder) {
@@ -353,7 +350,7 @@ export function getStoredItems(): GRNItem[] {
 
 export function saveStoredItems(items: GRNItem[]) {
   ensureStoreFiles();
-  fs.writeFileSync(ITEMS_FILE, JSON.stringify(items, null, 2), 'utf8');
+  safeWriteJson(ITEMS_FILE, items);
 }
 
 export function addStoredItems(newItems: GRNItem[]) {
@@ -414,7 +411,7 @@ export function getStoredStockLedger(): StockLedgerEntry[] {
 
 export function saveStoredStockLedger(entries: StockLedgerEntry[]) {
   ensureStoreFiles();
-  fs.writeFileSync(STOCK_LEDGER_FILE, JSON.stringify(entries, null, 2), 'utf8');
+  safeWriteJson(STOCK_LEDGER_FILE, entries);
 }
 
 export function getCurrentStockForItem(itemCode: string): number {
@@ -477,7 +474,7 @@ export function getStoredInwardBatches(): GRNInwardBatch[] {
 
 export function saveStoredInwardBatches(batches: GRNInwardBatch[]) {
   ensureStoreFiles();
-  fs.writeFileSync(INWARD_BATCHES_FILE, JSON.stringify(batches, null, 2), 'utf8');
+  safeWriteJson(INWARD_BATCHES_FILE, batches);
 }
 
 export function getInwardBatchesForGrn(grnNumber: string, itemCode?: string): GRNInwardBatch[] {
@@ -560,7 +557,7 @@ export function getStoredProductionIssues(): ProductionIssue[] {
 
 export function saveStoredProductionIssues(issues: ProductionIssue[]) {
   ensureStoreFiles();
-  fs.writeFileSync(PRODUCTION_ISSUES_FILE, JSON.stringify(issues, null, 2), 'utf8');
+  safeWriteJson(PRODUCTION_ISSUES_FILE, issues);
 }
 
 export function addStoredProductionIssue(issue: ProductionIssue): ProductionIssue {
@@ -613,7 +610,7 @@ export function getStoredFinishedGoods(): FinishedGoodsStock[] {
 
 export function saveStoredFinishedGoods(goods: FinishedGoodsStock[]) {
   ensureStoreFiles();
-  fs.writeFileSync(FINISHED_GOODS_FILE, JSON.stringify(goods, null, 2), 'utf8');
+  safeWriteJson(FINISHED_GOODS_FILE, goods);
 }
 
 export function addStoredFinishedGoods(good: FinishedGoodsStock): FinishedGoodsStock {
@@ -660,7 +657,7 @@ export function getStoredDispatches(): DispatchRecord[] {
 
 export function saveStoredDispatches(dispatches: DispatchRecord[]) {
   ensureStoreFiles();
-  fs.writeFileSync(DISPATCHES_FILE, JSON.stringify(dispatches, null, 2), 'utf8');
+  safeWriteJson(DISPATCHES_FILE, dispatches);
 }
 
 export function addStoredDispatch(dispatch: DispatchRecord): DispatchRecord {
@@ -708,7 +705,7 @@ export function getStoredPurchaseOrders(): PurchaseOrder[] {
 
 export function saveStoredPurchaseOrders(pos: PurchaseOrder[]): void {
   ensureStoreFiles();
-  fs.writeFileSync(PURCHASE_ORDERS_FILE, JSON.stringify(pos, null, 2), 'utf8');
+  safeWriteJson(PURCHASE_ORDERS_FILE, pos);
 }
 
 export function addStoredPurchaseOrder(po: PurchaseOrder): PurchaseOrder {
