@@ -26,155 +26,14 @@ const FINISHED_GOODS_FILE = getWritableDataFilePath('finished_goods.json');
 const DISPATCHES_FILE = getWritableDataFilePath('dispatches.json');
 const CATALOG_ITEMS_FILE = getWritableDataFilePath('catalog_items.json');
 
-const INITIAL_PURCHASE_ORDERS: PurchaseOrder[] = [
-  {
-    id: 'po-demo-001',
-    poNumber: 'PO-2026-001',
-    vendorId: 'VND-101',
-    vendorName: 'Apex Precision Logistics',
-    poDate: '2026-09-28',
-    deliveryDueDate: '2026-10-05',
-    status: 'PARTIALLY_RECEIVED',
-    totalAmount: 94400,
-    remarks: 'Monthly Production Material Supply',
-    items: [
-      {
-        id: 'poi-demo-01',
-        poId: 'po-demo-001',
-        itemId: 'ITM-01',
-        itemCode: 'ITM-01',
-        description: 'Precision Machined Flange (Steel)',
-        orderedQty: 100,
-        receivedQty: 40,
-        acceptedQty: 40,
-        pendingQty: 60,
-        unitPrice: 500,
-        taxPercent: 18,
-        lineTotal: 59000,
-      },
-      {
-        id: 'poi-demo-02',
-        poId: 'po-demo-001',
-        itemId: 'ITM-02',
-        itemCode: 'ITM-02',
-        description: 'Heavy Duty Hex Bolts M16 (Grade 8.8)',
-        orderedQty: 500,
-        receivedQty: 200,
-        acceptedQty: 200,
-        pendingQty: 300,
-        unitPrice: 60,
-        taxPercent: 18,
-        lineTotal: 35400,
-      },
-    ],
-  },
-  {
-    id: 'po-demo-002',
-    poNumber: 'PO-2026-002',
-    vendorId: 'VND-102',
-    vendorName: 'Nordic MicroSensors Inc.',
-    poDate: '2026-09-29',
-    deliveryDueDate: '2026-10-10',
-    status: 'ISSUED',
-    totalAmount: 70800,
-    remarks: 'Sensors consignment for Assembly Line 2',
-    items: [
-      {
-        id: 'poi-demo-03',
-        poId: 'po-demo-002',
-        itemId: 'ITM-03',
-        itemCode: 'ITM-03',
-        description: 'Optical Proximity Sensor Array',
-        orderedQty: 50,
-        receivedQty: 0,
-        acceptedQty: 0,
-        pendingQty: 50,
-        unitPrice: 1200,
-        taxPercent: 18,
-        lineTotal: 70800,
-      },
-    ],
-  },
-];
-
+const INITIAL_PURCHASE_ORDERS: PurchaseOrder[] = [];
 const INITIAL_VENDORS: Vendor[] = [];
-
-const INITIAL_STOCK_LEDGER: StockLedgerEntry[] = [
-  {
-    id: 'tx-init-001',
-    timestamp: '2026-09-29T10:00:00.000Z',
-    itemCode: 'ITM-01',
-    itemName: 'Precision Machined Flange',
-    transactionType: 'MANUAL_AUDIT',
-    referenceNumber: 'AUDIT-INIT',
-    previousStock: 0,
-    changeQty: 50,
-    newStock: 50,
-    location: 'STORE',
-    performedBy: 'Store Supervisor',
-    userRole: 'STORE',
-    remarks: 'Baseline opening stock audit confirmed in warehouse store.',
-  },
-  {
-    id: 'tx-grn-002',
-    timestamp: '2026-09-29T14:30:00.000Z',
-    itemCode: 'ITM-01',
-    itemName: 'Precision Machined Flange',
-    transactionType: 'QC_ACCEPT',
-    referenceNumber: 'GRN-2026-001',
-    previousStock: 50,
-    changeQty: 100,
-    newStock: 150,
-    location: 'STORE',
-    performedBy: 'Quality Tester (QC)',
-    userRole: 'QC',
-    remarks: 'Dimensional & hardness test passed (45 HRC). Inward consignment accepted into Store.',
-  },
-  {
-    id: 'tx-prod-003',
-    timestamp: '2026-09-29T16:15:00.000Z',
-    itemCode: 'ITM-01',
-    itemName: 'Precision Machined Flange',
-    transactionType: 'PRODUCTION_ISSUE',
-    referenceNumber: 'REQ-PROD-401',
-    previousStock: 150,
-    changeQty: -30,
-    newStock: 120,
-    location: 'PRODUCTION',
-    performedBy: 'Production Engineer',
-    userRole: 'PRODUCTION',
-    remarks: 'Issued 30 units to CNC Milling Line 2 for batch sub-assembly.',
-  },
-  {
-    id: 'tx-scrap-004',
-    timestamp: '2026-09-29T18:45:00.000Z',
-    itemCode: 'ITM-01',
-    itemName: 'Precision Machined Flange',
-    transactionType: 'SCRAP_ADJUSTMENT',
-    referenceNumber: 'SCRAP-088',
-    previousStock: 120,
-    changeQty: -20,
-    newStock: 100,
-    location: 'REJECTED',
-    performedBy: 'Quality Inspector',
-    userRole: 'QC',
-    remarks: 'Tool wear vibration caused surface tolerance defect on 20 units; written off to quarantine scrap.',
-  },
-];
-
-const INITIAL_CATALOG_ITEMS: MasterCatalogItem[] = [
-  { itemCode: 'ITM-01', itemName: 'Precision Machined Flange (Steel)', category: 'Machined Parts', hsnCode: '7307', uom: 'PCS', defaultPrice: 500, minStock: 20, reorderQty: 50, status: 'ACTIVE' },
-  { itemCode: 'ITM-02', itemName: 'Heavy Duty Hex Bolts M16 (Grade 8.8)', category: 'Fasteners', hsnCode: '7318', uom: 'PCS', defaultPrice: 60, minStock: 100, reorderQty: 500, status: 'ACTIVE' },
-  { itemCode: 'ITM-03', itemName: 'Hydraulic Cylinder Bore Tube (Alloy)', category: 'Raw Material', hsnCode: '8412', uom: 'MTR', defaultPrice: 1450, minStock: 10, reorderQty: 25, status: 'ACTIVE' },
-  { itemCode: 'ITM-04', itemName: 'Nitril O-Ring High Temp Seal Kit', category: 'Consumables', hsnCode: '4016', uom: 'SET', defaultPrice: 220, minStock: 30, reorderQty: 100, status: 'ACTIVE' },
-  { itemCode: 'ITM-05', itemName: 'Cast Iron Bearing Housing Bracket', category: 'Castings', hsnCode: '8483', uom: 'NOS', defaultPrice: 850, minStock: 15, reorderQty: 40, status: 'ACTIVE' },
-  { itemCode: 'ITM-06', itemName: 'Stainless Steel Sheet 2mm (SS304)', category: 'Raw Material', hsnCode: '7219', uom: 'KG', defaultPrice: 320, minStock: 50, reorderQty: 200, status: 'ACTIVE' },
-  { itemCode: 'ITM-07', itemName: 'Brass Bushing Sleeve (Self-Lubricating)', category: 'Machined Parts', hsnCode: '8483', uom: 'PCS', defaultPrice: 180, minStock: 40, reorderQty: 100, status: 'ACTIVE' },
-];
+const INITIAL_STOCK_LEDGER: StockLedgerEntry[] = [];
+const INITIAL_CATALOG_ITEMS: MasterCatalogItem[] = [];
 
 function ensureStoreFiles() {
   if (!fs.existsSync(VENDORS_FILE)) {
-    safeWriteJson(VENDORS_FILE, INITIAL_VENDORS);
+    safeWriteJson(VENDORS_FILE, []);
   }
   if (!fs.existsSync(ORDERS_FILE)) {
     safeWriteJson(ORDERS_FILE, []);
@@ -183,7 +42,7 @@ function ensureStoreFiles() {
     safeWriteJson(ITEMS_FILE, []);
   }
   if (!fs.existsSync(STOCK_LEDGER_FILE)) {
-    safeWriteJson(STOCK_LEDGER_FILE, INITIAL_STOCK_LEDGER);
+    safeWriteJson(STOCK_LEDGER_FILE, []);
   }
   if (!fs.existsSync(INWARD_BATCHES_FILE)) {
     safeWriteJson(INWARD_BATCHES_FILE, []);
@@ -198,10 +57,10 @@ function ensureStoreFiles() {
     safeWriteJson(DISPATCHES_FILE, []);
   }
   if (!fs.existsSync(PURCHASE_ORDERS_FILE)) {
-    safeWriteJson(PURCHASE_ORDERS_FILE, INITIAL_PURCHASE_ORDERS);
+    safeWriteJson(PURCHASE_ORDERS_FILE, []);
   }
   if (!fs.existsSync(CATALOG_ITEMS_FILE)) {
-    safeWriteJson(CATALOG_ITEMS_FILE, INITIAL_CATALOG_ITEMS);
+    safeWriteJson(CATALOG_ITEMS_FILE, []);
   }
 }
 
@@ -254,9 +113,9 @@ export function getStoredCatalogItems(): MasterCatalogItem[] {
   try {
     const raw = fs.readFileSync(CATALOG_ITEMS_FILE, 'utf8');
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_CATALOG_ITEMS;
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return INITIAL_CATALOG_ITEMS;
+    return [];
   }
 }
 

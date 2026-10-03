@@ -18,6 +18,8 @@ import {
   DollarSign,
   MapPin,
   AlertCircle,
+  Copy,
+  History,
 } from 'lucide-react';
 
 interface MastersCatalogViewProps {
@@ -35,35 +37,7 @@ const UOM_LIST = [
   { code: 'PKT', name: 'Packet', type: 'Fasteners / Washers' },
 ];
 
-const INITIAL_CUSTOMERS: Customer[] = [
-  {
-    customerCode: 'CUST-001',
-    customerName: 'Tata Motors Ltd (Pune Plant)',
-    contactPerson: 'Mr. Rajesh Sharma',
-    email: 'procurement@tatamotors.com',
-    phone: '+91 20 6612 3456',
-    address: 'Pimpri Industrial Zone, Pune',
-    status: 'ACTIVE',
-  },
-  {
-    customerCode: 'CUST-002',
-    customerName: 'Bharat Forge Infrastructure',
-    contactPerson: 'Ms. Ananya Deshmukh',
-    email: 'orders@bharatforge.com',
-    phone: '+91 20 6704 5678',
-    address: 'Mundhwa Industrial Area, Pune',
-    status: 'ACTIVE',
-  },
-  {
-    customerCode: 'CUST-003',
-    customerName: 'Mahindra Heavy Machinery',
-    contactPerson: 'Mr. Amit Kulkarni',
-    email: 'supply@mahindra.com',
-    phone: '+91 22 2490 1234',
-    address: 'Chakan Industrial Hub, Phase 2',
-    status: 'ACTIVE',
-  },
-];
+const INITIAL_CUSTOMERS: Customer[] = [];
 
 export const MastersCatalogView: React.FC<MastersCatalogViewProps> = ({
   initialTab = 'items',
@@ -123,6 +97,142 @@ export const MastersCatalogView: React.FC<MastersCatalogViewProps> = ({
   const [custEmail, setCustEmail] = useState('');
   const [custPhone, setCustPhone] = useState('');
   const [custAddress, setCustAddress] = useState('');
+
+  // ----------------------------------------------------------------------------
+  // HISTORY AUDIT MODAL STATE
+  // ----------------------------------------------------------------------------
+  const [historyTarget, setHistoryTarget] = useState<{
+    type: 'product' | 'vendor';
+    code: string;
+    name: string;
+    extra?: string;
+  } | null>(null);
+  const [historyRecords, setHistoryRecords] = useState<any[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
+  const handleCopyVendor = (v: Vendor) => {
+    setEditingVendor(null);
+    setVendorCode(`VND-${String(vendors.length + 101)}`);
+    setVendorName(`${v.vendorName} (Copy)`);
+    setVendorCategory(v.category || 'Raw Material');
+    setContactPerson(v.contactPerson || '');
+    setEmail(v.email || '');
+    setPhone(v.phone || '');
+    setAddress(v.address || '');
+    setVendorStatus('Active');
+    setVendorRating(v.qualityRating || 5.0);
+    setIsAddVendorOpen(true);
+  };
+
+  const handleCopyProduct = (item: MasterCatalogItem) => {
+    setEditingProduct(null);
+    const nextNum = catalogItems.length + 1;
+    setProdCode(`ITM-${String(nextNum).padStart(2, '0')}`);
+    setProdName(`${item.itemName} (Copy)`);
+    setProdCategory(item.category || 'Machined Parts');
+    setProdHsn(item.hsnCode || '7318');
+    setProdUom(item.uom || 'PCS');
+    setProdPrice(Number(item.defaultPrice) || 0);
+    setProdMinStock(Number(item.minStock) || 20);
+    setProdReorderQty(Number(item.reorderQty) || 50);
+    setProdStatus('ACTIVE');
+    setIsAddProductOpen(true);
+  };
+
+  const handleOpenProductHistory = async (item: MasterCatalogItem) => {
+    setHistoryTarget({
+      type: 'product',
+      code: item.itemCode,
+      name: item.itemName,
+      extra: `Category: ${item.category} | UOM: ${item.uom} | Price: ₹${item.defaultPrice || 0}`,
+    });
+    setLoadingHistory(true);
+    try {
+      const [grnRes, poRes] = await Promise.all([
+        fetch('/api/items?qcStatus=all').catch(() => null),
+        fetch('/api/po').catch(() => null),
+      ]);
+      const matchedRecords: any[] = [];
+      if (grnRes && grnRes.ok) {
+        const d = await grnRes.json();
+        if (d.items) {
+          d.items
+            .filter((it: any) => it.itemCode?.toUpperCase() === item.itemCode.toUpperCase())
+            .forEach((it: any) => {
+              matchedRecords.push({
+                type: 'Inward GRN',
+                refNumber: it.grnNumber,
+                qty: `${it.receivedQty} ${it.unit}`,
+                status: it.qcStatus,
+                date: it.inspectedAt ? new Date(it.inspectedAt).toLocaleDateString() : 'Received',
+                remarks: it.qcRemarks || it.rejectionReason || 'Inward verification logged',
+              });
+            });
+        }
+      }
+      setHistoryRecords(matchedRecords);
+    } catch {
+      setHistoryRecords([]);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  const handleOpenVendorHistory = async (vendor: Vendor) => {
+    setHistoryTarget({
+      type: 'vendor',
+      code: vendor.vendorCode,
+      name: vendor.vendorName,
+      extra: `Category: ${vendor.category} | Rating: ${vendor.qualityRating || 5.0}★ | Contact: ${vendor.contactPerson || 'N/A'}`,
+    });
+    setLoadingHistory(true);
+    try {
+      const [grnRes, poRes] = await Promise.all([
+        fetch('/api/grn').catch(() => null),
+        fetch('/api/po').catch(() => null),
+      ]);
+      const matchedRecords: any[] = [];
+      if (grnRes && grnRes.ok) {
+        const d = await grnRes.json();
+        if (d.orders) {
+          d.orders
+            .filter((o: any) => o.vendorName?.toLowerCase() === vendor.vendorName.toLowerCase())
+            .forEach((o: any) => {
+              matchedRecords.push({
+                type: 'Dock GRN Delivery',
+                refNumber: o.grnNumber,
+                qty: `${o.totalItems} items`,
+                status: o.status,
+                date: o.receivedDate,
+                remarks: `Delivery Challan: ${o.deliveryChallan || 'Verified'} | Warehouse: ${o.warehouse || 'Store'}`,
+              });
+            });
+        }
+      }
+      if (poRes && poRes.ok) {
+        const d = await poRes.json();
+        if (d.purchaseOrders) {
+          d.purchaseOrders
+            .filter((p: any) => p.vendorName?.toLowerCase() === vendor.vendorName.toLowerCase())
+            .forEach((p: any) => {
+              matchedRecords.push({
+                type: 'Purchase Order',
+                refNumber: p.poNumber,
+                qty: `₹${Number(p.totalAmount || 0).toLocaleString('en-IN')}`,
+                status: p.status,
+                date: p.poDate,
+                remarks: p.remarks || 'Purchase Order Issued',
+              });
+            });
+        }
+      }
+      setHistoryRecords(matchedRecords);
+    } catch {
+      setHistoryRecords([]);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
 
   // ----------------------------------------------------------------------------
   // FETCH APIS
@@ -611,7 +721,7 @@ export const MastersCatalogView: React.FC<MastersCatalogViewProps> = ({
                           </span>
                         </td>
                         <td style={{ padding: '12px 16px', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                          <div style={{ display: 'flex', justifyContent: 'center', gap: '6px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'center', gap: '5px' }}>
                             <button
                               onClick={() => openEditProductModal(it)}
                               style={{
@@ -632,6 +742,48 @@ export const MastersCatalogView: React.FC<MastersCatalogViewProps> = ({
                             >
                               <Edit size={12} />
                               <span>Edit</span>
+                            </button>
+                            <button
+                              onClick={() => handleCopyProduct(it)}
+                              style={{
+                                padding: '5px 8px',
+                                borderRadius: '4px',
+                                border: '1px solid #cbd5e1',
+                                background: '#ffffff',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                fontSize: '11.5px',
+                                color: '#475569',
+                                fontWeight: 600,
+                                whiteSpace: 'nowrap',
+                              }}
+                              title="Duplicate / Copy Product"
+                            >
+                              <Copy size={12} />
+                              <span>Copy</span>
+                            </button>
+                            <button
+                              onClick={() => handleOpenProductHistory(it)}
+                              style={{
+                                padding: '5px 8px',
+                                borderRadius: '4px',
+                                border: '1px solid #c7d2fe',
+                                background: '#eef2ff',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                fontSize: '11.5px',
+                                color: '#4338ca',
+                                fontWeight: 600,
+                                whiteSpace: 'nowrap',
+                              }}
+                              title="View Inward & Order History"
+                            >
+                              <History size={12} />
+                              <span>History</span>
                             </button>
                             <button
                               onClick={() => handleDeleteProduct(it.itemCode, it.itemName)}
@@ -729,21 +881,37 @@ export const MastersCatalogView: React.FC<MastersCatalogViewProps> = ({
                       </div>
                     </div>
 
-                    <div className="mobile-card-actions">
+                    <div className="mobile-card-actions" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                       <button
                         onClick={() => openEditProductModal(it)}
                         className="btn-outline"
-                        style={{ flex: 1, padding: '7px 10px', fontSize: '12px', justifyContent: 'center' }}
+                        style={{ flex: 1, padding: '7px 8px', fontSize: '11.5px', justifyContent: 'center' }}
                       >
-                        <Edit size={13} color="#0284c7" />
-                        <span>Edit Product</span>
+                        <Edit size={12} color="#0284c7" />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={() => handleCopyProduct(it)}
+                        className="btn-outline"
+                        style={{ padding: '7px 8px', fontSize: '11.5px' }}
+                      >
+                        <Copy size={12} color="#475569" />
+                        <span>Copy</span>
+                      </button>
+                      <button
+                        onClick={() => handleOpenProductHistory(it)}
+                        className="btn-outline"
+                        style={{ padding: '7px 8px', fontSize: '11.5px', background: '#eef2ff', color: '#4338ca', borderColor: '#c7d2fe' }}
+                      >
+                        <History size={12} />
+                        <span>History</span>
                       </button>
                       <button
                         onClick={() => handleDeleteProduct(it.itemCode, it.itemName)}
                         className="btn-outline"
-                        style={{ padding: '7px 12px', color: '#e11d48', borderColor: '#fecaca', background: '#fff1f2' }}
+                        style={{ padding: '7px 10px', color: '#e11d48', borderColor: '#fecaca', background: '#fff1f2' }}
                       >
-                        <Trash2 size={13} />
+                        <Trash2 size={12} />
                       </button>
                     </div>
                   </div>
@@ -836,7 +1004,7 @@ export const MastersCatalogView: React.FC<MastersCatalogViewProps> = ({
                           </span>
                         </td>
                         <td style={{ padding: '12px 16px', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                          <div style={{ display: 'flex', justifyContent: 'center', gap: '6px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'center', gap: '5px' }}>
                             <button
                               onClick={() => openEditVendorModal(v)}
                               style={{
@@ -857,6 +1025,48 @@ export const MastersCatalogView: React.FC<MastersCatalogViewProps> = ({
                             >
                               <Edit size={12} />
                               <span>Edit</span>
+                            </button>
+                            <button
+                              onClick={() => handleCopyVendor(v)}
+                              style={{
+                                padding: '5px 8px',
+                                borderRadius: '4px',
+                                border: '1px solid #cbd5e1',
+                                background: '#ffffff',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                fontSize: '11.5px',
+                                color: '#475569',
+                                fontWeight: 600,
+                                whiteSpace: 'nowrap',
+                              }}
+                              title="Duplicate / Copy Supplier"
+                            >
+                              <Copy size={12} />
+                              <span>Copy</span>
+                            </button>
+                            <button
+                              onClick={() => handleOpenVendorHistory(v)}
+                              style={{
+                                padding: '5px 8px',
+                                borderRadius: '4px',
+                                border: '1px solid #c7d2fe',
+                                background: '#eef2ff',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                fontSize: '11.5px',
+                                color: '#4338ca',
+                                fontWeight: 600,
+                                whiteSpace: 'nowrap',
+                              }}
+                              title="View Inward & Order History"
+                            >
+                              <History size={12} />
+                              <span>History</span>
                             </button>
                             <button
                               onClick={() => handleDeleteVendor(v.vendorCode, v.vendorName)}
@@ -952,21 +1162,37 @@ export const MastersCatalogView: React.FC<MastersCatalogViewProps> = ({
                       </div>
                     </div>
 
-                    <div className="mobile-card-actions">
+                    <div className="mobile-card-actions" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                       <button
                         onClick={() => openEditVendorModal(v)}
                         className="btn-outline"
-                        style={{ flex: 1, padding: '7px 10px', fontSize: '12px', justifyContent: 'center' }}
+                        style={{ flex: 1, padding: '7px 8px', fontSize: '11.5px', justifyContent: 'center' }}
                       >
-                        <Edit size={13} color="#2563eb" />
-                        <span>Edit Supplier</span>
+                        <Edit size={12} color="#2563eb" />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={() => handleCopyVendor(v)}
+                        className="btn-outline"
+                        style={{ padding: '7px 8px', fontSize: '11.5px' }}
+                      >
+                        <Copy size={12} color="#475569" />
+                        <span>Copy</span>
+                      </button>
+                      <button
+                        onClick={() => handleOpenVendorHistory(v)}
+                        className="btn-outline"
+                        style={{ padding: '7px 8px', fontSize: '11.5px', background: '#eef2ff', color: '#4338ca', borderColor: '#c7d2fe' }}
+                      >
+                        <History size={12} />
+                        <span>History</span>
                       </button>
                       <button
                         onClick={() => handleDeleteVendor(v.vendorCode, v.vendorName)}
                         className="btn-outline"
-                        style={{ padding: '7px 12px', color: '#e11d48', borderColor: '#fecaca', background: '#fff1f2' }}
+                        style={{ padding: '7px 10px', color: '#e11d48', borderColor: '#fecaca', background: '#fff1f2' }}
                       >
-                        <Trash2 size={13} />
+                        <Trash2 size={12} />
                       </button>
                     </div>
                   </div>
@@ -1614,6 +1840,252 @@ export const MastersCatalogView: React.FC<MastersCatalogViewProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ------------------------------------------------------------------------ */}
+      {/* HISTORY & AUDIT MODAL                                                    */}
+      {/* ------------------------------------------------------------------------ */}
+      {historyTarget && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.55)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '16px',
+          }}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              maxWidth: '750px',
+              width: '100%',
+              maxHeight: '85vh',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              border: '1px solid #e2e8f0',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Modal Header */}
+            <div
+              style={{
+                padding: '18px 24px',
+                borderBottom: '1px solid #f1f5f9',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: '#fafbfc',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div
+                  style={{
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '10px',
+                    background: '#eef2ff',
+                    color: '#4338ca',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <History size={20} />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                    {historyTarget.type === 'product'
+                      ? 'Product Movement & Inward History'
+                      : 'Supplier Delivery & Order History'}
+                  </h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontWeight: 700,
+                        fontSize: '12px',
+                        color: historyTarget.type === 'product' ? '#0369a1' : '#2563eb',
+                      }}
+                    >
+                      {historyTarget.code}
+                    </span>
+                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>
+                      {historyTarget.name}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setHistoryTarget(null)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '6px',
+                  borderRadius: '6px',
+                  color: '#64748b',
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Extra details strip */}
+            {historyTarget.extra && (
+              <div
+                style={{
+                  padding: '8px 24px',
+                  background: '#f8fafc',
+                  borderBottom: '1px solid #f1f5f9',
+                  fontSize: '12px',
+                  color: '#64748b',
+                  fontWeight: 500,
+                }}
+              >
+                {historyTarget.extra}
+              </div>
+            )}
+
+            {/* Modal Body */}
+            <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1 }}>
+              {loadingHistory ? (
+                <div style={{ textAlign: 'center', padding: '40px 0', color: '#64748b' }}>
+                  <div
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      border: '3px solid #e2e8f0',
+                      borderTopColor: '#4338ca',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite',
+                      margin: '0 auto 12px auto',
+                    }}
+                  />
+                  <p style={{ margin: 0, fontSize: '13.5px', fontWeight: 600 }}>Loading transaction audit trail...</p>
+                </div>
+              ) : historyRecords.length === 0 ? (
+                <div
+                  style={{
+                    textAlign: 'center',
+                    padding: '44px 20px',
+                    background: '#f8fafc',
+                    borderRadius: '12px',
+                    border: '1px dashed #cbd5e1',
+                  }}
+                >
+                  <History size={32} color="#94a3b8" style={{ margin: '0 auto 10px auto' }} />
+                  <p style={{ margin: '0 0 4px 0', fontWeight: 700, color: '#334155', fontSize: '14px' }}>
+                    No Transactions Found Yet
+                  </p>
+                  <p style={{ margin: 0, fontSize: '12.5px', color: '#64748b', maxWidth: '380px', marginInline: 'auto' }}>
+                    {historyTarget.type === 'product'
+                      ? 'No inward consignments, QC inspections, or purchase orders have been logged for this product SKU yet.'
+                      : 'No purchase orders or dock deliveries have been issued for this vendor yet.'}
+                  </p>
+                </div>
+              ) : (
+                <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12.5px' }}>
+                    <thead>
+                      <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', fontSize: '11.5px' }}>TYPE</th>
+                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', fontSize: '11.5px' }}>REF / DOC #</th>
+                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', fontSize: '11.5px' }}>QTY / VALUATION</th>
+                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', fontSize: '11.5px' }}>DATE</th>
+                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', fontSize: '11.5px' }}>STATUS</th>
+                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', fontSize: '11.5px' }}>REMARKS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {historyRecords.map((rec, idx) => (
+                        <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '10px 14px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap' }}>
+                            <span
+                              style={{
+                                fontSize: '11px',
+                                padding: '2px 7px',
+                                borderRadius: '4px',
+                                background: rec.type?.includes('GRN') ? '#e0f2fe' : '#fef3c7',
+                                color: rec.type?.includes('GRN') ? '#0369a1' : '#b45309',
+                                fontWeight: 700,
+                              }}
+                            >
+                              {rec.type}
+                            </span>
+                          </td>
+                          <td style={{ padding: '10px 14px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#2563eb' }}>
+                            {rec.refNumber}
+                          </td>
+                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#059669' }}>
+                            {rec.qty}
+                          </td>
+                          <td style={{ padding: '10px 14px', color: '#64748b', whiteSpace: 'nowrap' }}>
+                            {rec.date}
+                          </td>
+                          <td style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>
+                            <span
+                              style={{
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                padding: '2px 8px',
+                                borderRadius: '999px',
+                                background:
+                                  rec.status === 'Passed' || rec.status === 'COMPLETED' || rec.status === 'APPROVED'
+                                    ? '#dcfce7'
+                                    : rec.status === 'Rejected'
+                                    ? '#fee2e2'
+                                    : '#fef3c7',
+                                color:
+                                  rec.status === 'Passed' || rec.status === 'COMPLETED' || rec.status === 'APPROVED'
+                                    ? '#15803d'
+                                    : rec.status === 'Rejected'
+                                    ? '#b91c1c'
+                                    : '#b45309',
+                              }}
+                            >
+                              ● {rec.status || 'Logged'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '10px 14px', color: '#475569', fontSize: '12px' }}>
+                            {rec.remarks}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div
+              style={{
+                padding: '14px 24px',
+                borderTop: '1px solid #f1f5f9',
+                display: 'flex',
+                justifyContent: 'flex-end',
+                background: '#fafbfc',
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setHistoryTarget(null)}
+                className="btn-accent"
+                style={{ padding: '8px 18px', fontSize: '13px' }}
+              >
+                Close History
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -73,12 +73,12 @@ export const CreateGrnModal: React.FC<CreateGrnModalProps> = ({
   const [receivedDate, setReceivedDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [warehouse, setWarehouse] = useState('Main Factory Store');
   const [carrierTracking, setCarrierTracking] = useState('');
-  const [inspector, setInspector] = useState('');
+  const [inspector, setInspector] = useState('QC Team');
   const [customInspector, setCustomInspector] = useState(false);
   const [isScrapReceipt, setIsScrapReceipt] = useState(false);
   const [notes, setNotes] = useState('');
 
-  // CRM Users list for QC Inspector dropdown
+  // CRM Users list for QC Inspector reference
   const [crmUsers, setCrmUsers] = useState<CrmUser[]>([
     { fullName: 'Plant Administrator', role: 'ADMIN', email: 'sales@sanyogengineers.co.in' },
     { fullName: 'Sudhakar Magar', role: 'ADMIN', email: 'magarsudhakar51@gmail.com' },
@@ -103,11 +103,11 @@ export const CreateGrnModal: React.FC<CreateGrnModalProps> = ({
 
   const [items, setItems] = useState<NewItemRow[]>([
     {
-      itemCode: 'ITM-01',
+      itemCode: '',
       description: '',
       category: 'General',
-      poQty: 100,
-      receivedQty: 30,
+      poQty: 0,
+      receivedQty: 0,
       unit: 'PCS',
       unitPrice: 0,
       batchNumber: '',
@@ -328,10 +328,8 @@ export const CreateGrnModal: React.FC<CreateGrnModalProps> = ({
       setFormError('Supplier / Vendor name is required');
       return;
     }
-    if (!inspector.trim()) {
-      setFormError('QC Inspector name is required');
-      return;
-    }
+    const activeInspector = inspector.trim() || 'QC Team';
+
 
     for (let i = 0; i < items.length; i++) {
       const it = items[i];
@@ -367,9 +365,8 @@ export const CreateGrnModal: React.FC<CreateGrnModalProps> = ({
         receivedDate,
         warehouse,
         carrierTracking: carrierTracking.trim(),
-        inspector: inspector.trim(),
+        inspector: activeInspector,
         totalItems: totalItemsCount,
-        totalOrderedQty: totalOrderedCount,
         totalReceivedQty: totalItemsCount,
         totalPendingQty: Math.max(0, totalOrderedCount - totalItemsCount),
         totalValue: totalVal,
@@ -789,53 +786,27 @@ export const CreateGrnModal: React.FC<CreateGrnModalProps> = ({
                 />
               </div>
 
-              {/* QC Dock Inspector Dropdown (Populated from CRM users) */}
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <label style={{ fontSize: '11px', fontWeight: 700, color: '#475569' }}>
-                    QC Dock Inspector (CRM Registered) *
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setCustomInspector((prev) => !prev)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#2563eb',
-                      fontSize: '10.5px',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      padding: 0,
-                    }}
-                  >
-                    {customInspector ? 'Select from CRM' : '+ Type Custom'}
-                  </button>
+              {/* Automated Direct QC Routing (Direct to QC Dock Inspection queue) */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  background: '#f0fdf4',
+                  border: '1px solid #bbf7d0',
+                  borderRadius: '8px',
+                  padding: '10px 14px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '13px' }}>🛡️</span>
+                  <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#166534' }}>
+                    Automated QC Routing Active
+                  </span>
                 </div>
-
-                {!customInspector ? (
-                  <select
-                    className="form-select"
-                    value={inspector}
-                    onChange={(e) => setInspector(e.target.value)}
-                    required
-                  >
-                    <option value="">-- Choose QC Inspector --</option>
-                    {crmUsers.map((u) => (
-                      <option key={u.email} value={u.fullName}>
-                        {u.fullName} ({u.role})
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    type="text"
-                    required
-                    placeholder="Enter inspector full name"
-                    className="form-input"
-                    value={inspector}
-                    onChange={(e) => setInspector(e.target.value)}
-                  />
-                )}
+                <p style={{ fontSize: '11px', color: '#15803d', margin: '3px 0 0 0', lineHeight: 1.3 }}>
+                  Inward consignments directly route to the QC Dock Inspection queue for testing & verification.
+                </p>
               </div>
             </div>
 
@@ -896,6 +867,15 @@ export const CreateGrnModal: React.FC<CreateGrnModalProps> = ({
                 <span>Add Product Row</span>
               </button>
             </div>
+
+            {/* Product Catalog Autocomplete Datalist */}
+            <datalist id="grn-modal-catalog-skus">
+              {catalogItems.map((c) => (
+                <option key={c.itemCode} value={c.itemCode}>
+                  {c.itemName} ({c.uom || 'PCS'}) - ₹{c.defaultPrice || 0}
+                </option>
+              ))}
+            </datalist>
 
             {/* Responsive Table Container */}
             <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflowX: 'auto', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>

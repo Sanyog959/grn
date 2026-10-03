@@ -429,10 +429,16 @@ ALTER TABLE IF EXISTS public.production_issues
   ADD COLUMN IF NOT EXISTS responsible_person TEXT DEFAULT 'Operator',
   ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'PENDING_RECEIPT',
   ADD COLUMN IF NOT EXISTS remaining_store_stock NUMERIC(12, 2) DEFAULT 0.00,
+  ADD COLUMN IF NOT EXISTS report JSONB DEFAULT '{}'::jsonb,
+  ADD COLUMN IF NOT EXISTS ready_to_use_qty NUMERIC(12, 2) DEFAULT 0.00,
+  ADD COLUMN IF NOT EXISTS failed_processing_qty NUMERIC(12, 2) DEFAULT 0.00,
+  ADD COLUMN IF NOT EXISTS supplier_failed_qty NUMERIC(12, 2) DEFAULT 0.00,
+  ADD COLUMN IF NOT EXISTS scrap_reason TEXT,
   ADD COLUMN IF NOT EXISTS remarks TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_pi_voucher ON public.production_issues(voucher_number);
 CREATE INDEX IF NOT EXISTS idx_pi_item_code ON public.production_issues(item_code);
+CREATE INDEX IF NOT EXISTS idx_pi_issue_date ON public.production_issues(issue_date DESC);
 
 -- ==============================================================================
 -- 9. FINISHED GOODS WAREHOUSE (Step 5: Production Output Stocking)

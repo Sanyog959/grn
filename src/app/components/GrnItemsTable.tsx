@@ -68,9 +68,12 @@ export const GrnItemsTable: React.FC<GrnItemsTableProps> = ({
   const [modalRemarks, setModalRemarks] = useState<string>('');
   const [modalRejectionReason, setModalRejectionReason] = useState<string>('');
 
-  // Only users with role QC can perform inspection / Pass / Hold / Reject.
-  // Admin & Viewer can see whether QC is done, who inspected/accepted, remarks & audit, but cannot alter verdicts.
-  const isQcInspector = userRole === 'QC' || profile?.role === 'QC';
+  // Users with role QC, role ADMIN, or canApproveQc permission can perform inspection / Pass / Hold / Reject.
+  const isQcInspector =
+    userRole === 'QC' ||
+    profile?.role === 'QC' ||
+    profile?.role === 'ADMIN' ||
+    canApproveQc === true;
   const inspectorName = profile?.fullName || profile?.email || '';
 
   const PRESET_REMARKS = [
@@ -174,7 +177,9 @@ export const GrnItemsTable: React.FC<GrnItemsTableProps> = ({
   }, [scopedItems, scopeMode, inspectorName]);
 
   // Priority counts for QC in exact required order: Pending first, Passed, Failed, Hold
-  const pendingCount = userScopedItems.filter((i) => i.qcStatus === 'Under Review' || !i.qcStatus).length;
+  const pendingCount = userScopedItems.filter(
+    (i) => i.qcStatus === 'Under Review' || !i.qcStatus || (i.qcStatus as string) === 'Pending QC'
+  ).length;
   const passedCount = userScopedItems.filter((i) => i.qcStatus === 'Passed').length;
   const failedCount = userScopedItems.filter((i) => i.qcStatus === 'Failed').length;
   const holdCount = userScopedItems.filter((i) => i.qcStatus === 'HOLD' || i.qcStatus === 'Remark').length;
@@ -203,7 +208,7 @@ export const GrnItemsTable: React.FC<GrnItemsTableProps> = ({
       qcStatusFilter === 'ALL'
         ? true
         : qcStatusFilter === 'Under Review'
-        ? it.qcStatus === 'Under Review' || !it.qcStatus
+        ? it.qcStatus === 'Under Review' || !it.qcStatus || (it.qcStatus as string) === 'Pending QC'
         : qcStatusFilter === 'HOLD'
         ? it.qcStatus === 'HOLD' || it.qcStatus === 'Remark'
         : qcStatusFilter === 'SCRAP'

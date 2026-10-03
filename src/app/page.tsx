@@ -21,6 +21,7 @@ import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { hasModuleAccess, canUserPerformAction } from '@/types/auth';
 import { NavItemKey } from '@/components/layout/AppSidebar';
 import { AdminPoStockLifecycle } from '@/app/components/AdminPoStockLifecycle';
+import { StoreProductionRejectionDashboard } from '@/app/components/StoreProductionRejectionDashboard';
 import { PackageCheck, CheckCircle2, Building2, Plus, Layers, FileText, ShieldCheck, Factory, Truck } from 'lucide-react';
 import { PurchaseOrdersView } from '@/components/modules/PurchaseOrdersView';
 import { InventoryStockView } from '@/components/modules/InventoryStockView';
@@ -35,30 +36,7 @@ interface DashboardContentProps {
   orders: GRNOrder[];
   items: GRNItem[];
   vendors: Vendor[];
-  activeTab: 'grns' | 'items' | 'vendors' | 'stock';
-  setActiveTab: (tab: 'grns' | 'items' | 'vendors' | 'stock') => void;
-  selectedGrnFilter: string;
-  setSelectedGrnFilter: (filter: string) => void;
-  qcTableFilter?: string;
   onOpenCreateGrn: () => void;
-  onOpenCreateVendor: () => void;
-  onSelectGrnForSlip?: (order: GRNOrder) => void;
-  onUpdateStatus: (
-    grnNumber: string,
-    newStatus: 'Approved' | 'Pending QC' | 'Partial' | 'Rejected',
-    userRole?: string,
-    approvedBy?: string
-  ) => void;
-  onUpdateItemQc: (
-    itemId: string,
-    qcStatus: 'Passed' | 'Under Review' | 'Failed' | 'HOLD' | 'Remark',
-    rejectionReason?: string,
-    qcRemarks?: string,
-    acceptedQty?: number,
-    rejectedQty?: number,
-    userRole?: string,
-    inspectedBy?: string
-  ) => void;
   onNavigate?: (item: NavItemKey) => void;
 }
 
@@ -66,268 +44,20 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   orders,
   items,
   vendors,
-  activeTab,
-  setActiveTab,
-  selectedGrnFilter,
-  setSelectedGrnFilter,
-  qcTableFilter,
   onOpenCreateGrn,
-  onOpenCreateVendor,
-  onSelectGrnForSlip,
-  onUpdateStatus,
-  onUpdateItemQc,
   onNavigate,
 }) => {
-  const { role, profile } = useAuth();
-
-  // Granular Permission Evaluation (Admin granted or role default)
-  const canViewGrn = hasModuleAccess(role, 'grn', profile);
+  const { profile } = useAuth();
   const canCreateGrn = canUserPerformAction(profile, 'grn', 'canCreate');
-  const canViewQc = hasModuleAccess(role, 'qc', profile);
-  const canViewVendors = hasModuleAccess(role, 'masters', profile);
-  const canCreateVendor = canUserPerformAction(profile, 'masters', 'canCreate');
-
-  // Automatically adjust active tab if user lacks permission for the current tab
-  useEffect(() => {
-    if (activeTab === 'grns' && !canViewGrn) {
-      if (canViewQc) setActiveTab('items');
-      else if (canViewVendors) setActiveTab('vendors');
-    } else if (activeTab === 'items' && !canViewQc) {
-      if (canViewGrn) setActiveTab('grns');
-      else if (canViewVendors) setActiveTab('vendors');
-    } else if (activeTab === 'vendors' && !canViewVendors) {
-      if (canViewGrn) setActiveTab('grns');
-      else if (canViewQc) setActiveTab('items');
-    }
-  }, [activeTab, canViewGrn, canViewQc, canViewVendors, setActiveTab]);
-
-  const hasAnyTabAccess = canViewGrn || canViewQc || canViewVendors;
 
   return (
-    <>
-      {/* Mobile-First Compact Header */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '14px',
-          flexWrap: 'wrap',
-          gap: '10px',
-        }}
-      >
-        <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>
-            Material Inventory Pipeline
-          </h1>
-          <p style={{ fontSize: '12px', color: '#64748b', margin: '2px 0 0 0' }}>
-            Inward Receipts, QC Inspection Dock & Verified Suppliers
-          </p>
-        </div>
-
-        {canCreateGrn && (
-          <button
-            onClick={onOpenCreateGrn}
-            className="btn-accent"
-            style={{ padding: '6px 12px', fontSize: '12px', fontWeight: 700 }}
-          >
-            <Plus size={14} />
-            <span>Inward Dock GRN</span>
-          </button>
-        )}
-      </div>
-
-      {/* KPI Metrics */}
-      <KpiMetrics
-        orders={orders}
-        items={items}
-        vendors={vendors}
-        canViewGrn={canViewGrn}
-        canViewQc={canViewQc}
-        canViewVendors={canViewVendors}
-      />
-
-      {/* Admin Purchase Orders & Live Stock Pipeline Overview */}
-      <AdminPoStockLifecycle
-        orders={orders}
-        items={items}
-        onOpenSendToProduction={(_code) => {
-          onNavigate?.('production-issue');
-        }}
-      />
-
-      {/* Module Navigation Tabs */}
-      {hasAnyTabAccess ? (
-        <>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              borderBottom: '1px solid #e2e8f0',
-              marginBottom: '14px',
-              overflowX: 'auto',
-              whiteSpace: 'nowrap',
-              gap: '8px',
-              paddingBottom: '4px',
-            }}
-          >
-            <div style={{ display: 'flex', gap: '4px' }}>
-              {/* Tab 1: GRN Orders */}
-              {canViewGrn && (
-                <button
-                  onClick={() => {
-                    setActiveTab('grns');
-                    setSelectedGrnFilter('');
-                  }}
-                  className={`nav-tab-btn ${activeTab === 'grns' ? 'active' : ''}`}
-                >
-                  <PackageCheck size={14} color={activeTab === 'grns' ? '#2563eb' : '#64748b'} />
-                  <span>GRN Inward ({orders.length})</span>
-                </button>
-              )}
-
-              {/* Tab 2: QC Inspection */}
-              {canViewQc && (
-                <button
-                  onClick={() => setActiveTab('items')}
-                  className={`nav-tab-btn ${activeTab === 'items' ? 'active' : ''}`}
-                >
-                  <CheckCircle2 size={14} color={activeTab === 'items' ? '#2563eb' : '#64748b'} />
-                  <span>QC Inspection ({items.length})</span>
-                </button>
-              )}
-
-              {/* Tab 3: Suppliers Directory */}
-              {canViewVendors && (
-                <button
-                  onClick={() => {
-                    setActiveTab('vendors');
-                    setSelectedGrnFilter('');
-                  }}
-                  className={`nav-tab-btn ${activeTab === 'vendors' ? 'active' : ''}`}
-                >
-                  <Building2 size={14} color={activeTab === 'vendors' ? '#2563eb' : '#64748b'} />
-                  <span>Suppliers ({vendors.length})</span>
-                </button>
-              )}
-
-              {/* Tab 4: Stock Ledger & Audit Trail (Accessible to Admin and Quality) */}
-              <button
-                onClick={() => {
-                  setActiveTab('stock');
-                  setSelectedGrnFilter('');
-                }}
-                className={`nav-tab-btn ${activeTab === 'stock' ? 'active' : ''}`}
-              >
-                <Layers size={14} color={activeTab === 'stock' ? '#2563eb' : '#64748b'} />
-                <span>Stock Ledger</span>
-              </button>
-            </div>
-
-            <div className="desktop-only-text" style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 500 }}>
-              {activeTab === 'grns' && canViewGrn && 'Inward Receipts & Dock Receiving Log'}
-              {activeTab === 'items' && canViewQc && 'Line Item Discrepancy & Hardness Log'}
-              {activeTab === 'vendors' && canViewVendors && 'Approved Vendor Directory & SLA'}
-              {activeTab === 'stock' && 'Double-Entry Movement Log & Stock Trail'}
-            </div>
-          </div>
-
-          {/* Tab 1: GRN Orders Table */}
-          {activeTab === 'grns' && canViewGrn && (
-            <GrnOrdersTable
-              orders={orders}
-              items={items}
-              vendors={vendors}
-              canApproveGrn={canUserPerformAction(profile, 'grn', 'canApprove')}
-              userRole={profile?.role}
-              onSelectGrnForSlip={(order) => onSelectGrnForSlip?.(order)}
-              onInspectItems={(grnNumber) => {
-                if (canViewQc) {
-                  setSelectedGrnFilter(grnNumber);
-                  setActiveTab('items');
-                }
-              }}
-              onUpdateStatus={(grnNumber, newStatus) =>
-                onUpdateStatus(grnNumber, newStatus, profile?.role, profile?.fullName)
-              }
-            />
-          )}
-
-          {/* Tab 2: Line Items Inspection Table */}
-          {activeTab === 'items' && canViewQc && (
-            <GrnItemsTable
-              items={items}
-              orders={orders}
-              selectedGrnFilter={selectedGrnFilter}
-              defaultQcStatusFilter={qcTableFilter}
-              canApproveQc={canUserPerformAction(profile, 'qc', 'canApprove')}
-              userRole={profile?.role}
-              onClearGrnFilter={() => setSelectedGrnFilter('')}
-              onUpdateItemQc={(itemId, status, reason, remarks, acc, rej) =>
-                onUpdateItemQc(
-                  itemId,
-                  status,
-                  reason,
-                  remarks,
-                  acc,
-                  rej,
-                  profile?.role,
-                  profile?.fullName
-                )
-              }
-            />
-          )}
-
-          {/* Tab 3: Vendors Table */}
-          {activeTab === 'vendors' && canViewVendors && (
-            <VendorsTable
-              vendors={vendors}
-              onOpenCreateVendor={canCreateVendor ? onOpenCreateVendor : undefined}
-            />
-          )}
-
-          {/* Tab 4: Stock Ledger Audit Trail */}
-          {activeTab === 'stock' && <StockLedgerView />}
-        </>
-      ) : (
-        <div
-          style={{
-            background: '#ffffff',
-            borderRadius: '12px',
-            border: '1px solid #e2e8f0',
-            padding: '48px 24px',
-            textAlign: 'center',
-            maxWidth: '600px',
-            margin: '40px auto',
-          }}
-        >
-          <div style={{ fontSize: '40px', marginBottom: '16px' }}>🔒</div>
-          <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: '0 0 8px' }}>
-            Dashboard Modules Restricted
-          </h3>
-          <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.6, margin: '0 0 20px' }}>
-            Your account ({profile?.email}) is authorized with role{' '}
-            <strong style={{ color: '#0f172a' }}>{profile?.role}</strong>, but view permissions have
-            not been assigned for the main dashboard tables (GRN Inward, Quality Control, or Vendor
-            Masters).
-          </p>
-          <div
-            style={{
-              fontSize: '12.5px',
-              color: '#475569',
-              background: '#f8fafc',
-              padding: '12px 16px',
-              borderRadius: '8px',
-              border: '1px solid #e2e8f0',
-            }}
-          >
-            Please contact your Plant Administrator to grant specific module access in the RBAC
-            Administration portal.
-          </div>
-        </div>
-      )}
-    </>
+    <StoreProductionRejectionDashboard
+      orders={orders}
+      items={items}
+      vendors={vendors}
+      onNavigate={onNavigate}
+      onOpenCreateGrn={canCreateGrn ? onOpenCreateGrn : undefined}
+    />
   );
 };
 
@@ -710,18 +440,18 @@ function HomeInner() {
     [getAuthHeaders, showToast]
   );
 
-  // Initial connection verification on mount
+  // Initial connection verification & data fetch on mount (Unconditional to guarantee QC side visibility)
   useEffect(() => {
     let ignore = false;
-    const timer = setTimeout(() => {
-      if (!ignore && supabaseUrl && supabaseKey) {
-        testConnection(supabaseUrl, supabaseKey);
-        fetchData(supabaseUrl, supabaseKey);
-      }
-    }, 0);
+    // Always fetch live data immediately so QC & all users see all consignments regardless of credentials
+    fetchData();
+
+    if (supabaseUrl && supabaseKey) {
+      testConnection(supabaseUrl, supabaseKey);
+    }
+
     return () => {
       ignore = true;
-      clearTimeout(timer);
     };
   }, [supabaseUrl, supabaseKey, testConnection, fetchData]);
 
@@ -760,12 +490,16 @@ function HomeInner() {
       } else {
         showToast(`✓ ${newOrder.grnNumber} created! Moved to Quality Inspection.`);
       }
+
+      // Re-fetch from server to guarantee sync across all roles
+      await fetchData();
     } catch {
       showToast(`✓ ${newOrder.grnNumber} created in local state`);
     }
 
-    // Automatically navigate Grandpa to Step 3: QC Dock for immediate inspection!
-    setSelectedGrnFilter(newOrder.grnNumber);
+    // Automatically navigate to QC Inspection and show ALL pending items
+    setSelectedGrnFilter('');
+    setQcTableFilter('Under Review');
     setActiveNavItem('qc-pending');
   };
 
@@ -940,19 +674,10 @@ function HomeInner() {
           orders={orders}
           items={items}
           vendors={vendors}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          selectedGrnFilter={selectedGrnFilter}
-          setSelectedGrnFilter={setSelectedGrnFilter}
-          qcTableFilter={qcTableFilter}
           onOpenCreateGrn={() => {
             setSelectedPoForGrn(undefined);
             setIsCreateGrnOpen(true);
           }}
-          onOpenCreateVendor={() => setIsCreateVendorOpen(true)}
-          onSelectGrnForSlip={(order) => setSelectedGrnForSlip(order)}
-          onUpdateStatus={handleUpdateStatus}
-          onUpdateItemQc={handleUpdateItemQc}
           onNavigate={handleNavigate}
         />
       )}

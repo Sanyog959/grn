@@ -28,15 +28,7 @@ export interface CatalogItem {
   defaultPrice: number;
 }
 
-const DEFAULT_CATALOG_ITEMS: CatalogItem[] = [
-  { itemCode: 'ITM-01', itemName: 'Precision Machined Flange (Steel)', category: 'Machined Parts', uom: 'PCS', defaultPrice: 500 },
-  { itemCode: 'ITM-02', itemName: 'Heavy Duty Hex Bolts M16 (Grade 8.8)', category: 'Fasteners', uom: 'PCS', defaultPrice: 60 },
-  { itemCode: 'ITM-03', itemName: 'Hydraulic Cylinder Bore Tube (Alloy)', category: 'Raw Material', uom: 'MTR', defaultPrice: 1450 },
-  { itemCode: 'ITM-04', itemName: 'Nitril O-Ring High Temp Seal Kit', category: 'Consumables', uom: 'SET', defaultPrice: 220 },
-  { itemCode: 'ITM-05', itemName: 'Cast Iron Bearing Housing Bracket', category: 'Castings', uom: 'NOS', defaultPrice: 850 },
-  { itemCode: 'ITM-06', itemName: 'Stainless Steel Sheet 2mm (SS304)', category: 'Raw Material', uom: 'KG', defaultPrice: 320 },
-  { itemCode: 'ITM-07', itemName: 'Brass Bushing Sleeve (Self-Lubricating)', category: 'Machined Parts', uom: 'PCS', defaultPrice: 180 },
-];
+const DEFAULT_CATALOG_ITEMS: CatalogItem[] = [];
 
 interface PurchaseOrdersViewProps {
   vendors: Vendor[];
@@ -127,11 +119,11 @@ export const PurchaseOrdersView: React.FC<PurchaseOrdersViewProps> = ({
   const [items, setItems] = useState<NewPoItemRow[]>([
     {
       id: 'row-1',
-      itemCode: 'ITM-01',
-      description: 'Precision Machined Flange (Steel)',
-      orderedQty: 100,
+      itemCode: '',
+      description: '',
+      orderedQty: 1,
       unit: 'PCS',
-      unitPrice: 500,
+      unitPrice: 0,
     },
   ]);
 
@@ -139,10 +131,11 @@ export const PurchaseOrdersView: React.FC<PurchaseOrdersViewProps> = ({
   const fetchPurchaseOrders = useCallback(async () => {
     setLoading(true);
     try {
-      const [poRes, grnRes, catRes] = await Promise.all([
+      const [poRes, grnRes, catRes, venRes] = await Promise.all([
         fetch('/api/po'),
         fetch('/api/grn'),
         fetch('/api/catalog'),
+        fetch('/api/vendors'),
       ]);
       if (poRes.ok) {
         const data = await poRes.json();
@@ -157,7 +150,7 @@ export const PurchaseOrdersView: React.FC<PurchaseOrdersViewProps> = ({
       }
       if (catRes && catRes.ok) {
         const catData = await catRes.json();
-        if (catData.items && Array.isArray(catData.items) && catData.items.length > 0) {
+        if (catData.items && Array.isArray(catData.items)) {
           setCatalogItems(
             catData.items.map((it: any) => ({
               itemCode: it.itemCode,
@@ -167,6 +160,12 @@ export const PurchaseOrdersView: React.FC<PurchaseOrdersViewProps> = ({
               defaultPrice: Number(it.defaultPrice) || 0,
             }))
           );
+        }
+      }
+      if (venRes && venRes.ok) {
+        const venData = await venRes.json();
+        if (venData.vendors && Array.isArray(venData.vendors)) {
+          setVendorList(venData.vendors);
         }
       }
     } catch (err) {
@@ -1119,14 +1118,12 @@ export const PurchaseOrdersView: React.FC<PurchaseOrdersViewProps> = ({
                     onChange={(e) => setNewVendorName(e.target.value)}
                     className="form-select"
                   >
+                    <option value="">-- Select Registered Supplier --</option>
                     {vendorList.map((v) => (
                       <option key={v.vendorCode} value={v.vendorName}>
                         {v.vendorName} ({v.vendorCode})
                       </option>
                     ))}
-                    {vendorList.length === 0 && (
-                      <option value="Apex Precision Logistics">Apex Precision Logistics</option>
-                    )}
                   </select>
                 </div>
 
