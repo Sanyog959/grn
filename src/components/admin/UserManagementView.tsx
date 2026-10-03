@@ -525,14 +525,11 @@ export const UserManagementView: React.FC = () => {
                     border: '1px solid #cbd5e1',
                     fontSize: '12.5px',
                     fontWeight: 600,
-                  }}
-                >
-                  <option value="PURCHASE">Assign PURCHASE</option>
+                  }}>
                   <option value="QC">Assign QC Inspector</option>
-                  <option value="STORE">Assign STORE</option>
-                  <option value="PRODUCTION">Assign PRODUCTION</option>
-                  <option value="DISPATCH">Assign DISPATCH</option>
-                  <option value="VIEWER">Assign VIEWER</option>
+                  <option value="PRODUCTION">Assign Production Officer</option>
+                  <option value="VIEWER">Assign General / Stock Viewer (Read-only)</option>
+                  <option value="ADMIN">Assign Administrator</option>
                 </select>
                 <button
                   onClick={handleBulkApprove}
@@ -632,14 +629,10 @@ export const UserManagementView: React.FC = () => {
                             fontSize: '12.5px',
                             fontWeight: 600,
                             background: '#fff',
-                          }}
-                        >
-                          <option value="STORE">Store / Warehouse</option>
-                          <option value="PURCHASE">Purchase Officer</option>
-                          <option value="QC">Quality Inspector</option>
-                          <option value="PRODUCTION">Production Floor</option>
-                          <option value="DISPATCH">Dispatch Logistics</option>
-                          <option value="VIEWER">Auditor / Viewer</option>
+                          }}>
+                          <option value="QC">Quality Inspector (QC)</option>
+                          <option value="PRODUCTION">Production Officer</option>
+                          <option value="VIEWER">General / Stock Viewer (Read-only)</option>
                           <option value="ADMIN">Administrator</option>
                         </select>
                       </td>
@@ -742,14 +735,11 @@ export const UserManagementView: React.FC = () => {
                     borderRadius: '8px',
                     border: '1px solid #cbd5e1',
                     fontSize: '12.5px',
-                  }}
-                >
-                  <option value="PURCHASE">Role: PURCHASE</option>
-                  <option value="QC">Role: QC</option>
-                  <option value="STORE">Role: STORE</option>
-                  <option value="PRODUCTION">Role: PRODUCTION</option>
-                  <option value="DISPATCH">Role: DISPATCH</option>
-                  <option value="VIEWER">Role: VIEWER</option>
+                  }}>
+                  <option value="QC">Role: QC Inspector</option>
+                  <option value="PRODUCTION">Role: Production Officer</option>
+                  <option value="VIEWER">Role: General / Stock Viewer</option>
+                  <option value="ADMIN">Role: Administrator</option>
                 </select>
                 <button
                   onClick={async () => {
@@ -774,8 +764,9 @@ export const UserManagementView: React.FC = () => {
             )}
           </div>
 
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          {/* Desktop Table View */}
+          <div className="desktop-table-view" style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, textAlign: 'left', minWidth: '650px' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #e2e8f0', background: '#f8fafc' }}>
                   <th style={{ padding: '12px', width: '36px' }}>
@@ -788,10 +779,10 @@ export const UserManagementView: React.FC = () => {
                       }}
                     />
                   </th>
-                  <th style={{ padding: '12px', fontSize: '12.5px', fontWeight: 700, color: '#475569' }}>User</th>
-                  <th style={{ padding: '12px', fontSize: '12.5px', fontWeight: 700, color: '#475569' }}>Assigned Role</th>
-                  <th style={{ padding: '12px', fontSize: '12.5px', fontWeight: 700, color: '#475569' }}>Status</th>
-                  <th style={{ padding: '12px', fontSize: '12.5px', fontWeight: 700, color: '#475569', textAlign: 'right' }}>Actions</th>
+                  <th style={{ padding: '12px', fontSize: '12.5px', fontWeight: 700, color: '#475569', whiteSpace: 'nowrap' }}>User</th>
+                  <th style={{ padding: '12px', fontSize: '12.5px', fontWeight: 700, color: '#475569', whiteSpace: 'nowrap' }}>Assigned Role</th>
+                  <th style={{ padding: '12px', fontSize: '12.5px', fontWeight: 700, color: '#475569', whiteSpace: 'nowrap' }}>Status</th>
+                  <th style={{ padding: '12px', fontSize: '12.5px', fontWeight: 700, color: '#475569', textAlign: 'right', whiteSpace: 'nowrap' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -813,7 +804,7 @@ export const UserManagementView: React.FC = () => {
                         <div style={{ fontWeight: 700, color: '#0f172a' }}>{u.fullName}</div>
                         <div style={{ fontSize: '12.5px', color: '#64748b' }}>{u.email}</div>
                       </td>
-                      <td style={{ padding: '14px 12px' }}>
+                      <td style={{ padding: '14px 12px', whiteSpace: 'nowrap' }}>
                         <select
                           value={u.role}
                           onChange={(e) => handleRoleChange(u.id, e.target.value as UserRole)}
@@ -825,18 +816,14 @@ export const UserManagementView: React.FC = () => {
                             color: meta.colorBadge,
                             fontSize: '12.5px',
                             fontWeight: 700,
-                          }}
-                        >
+                          }}>
                           <option value="ADMIN">ADMIN</option>
-                          <option value="PURCHASE">PURCHASE</option>
                           <option value="QC">QC</option>
-                          <option value="STORE">STORE</option>
                           <option value="PRODUCTION">PRODUCTION</option>
-                          <option value="DISPATCH">DISPATCH</option>
-                          <option value="VIEWER">VIEWER</option>
+                          <option value="VIEWER">VIEWER (Read-only)</option>
                         </select>
                       </td>
-                      <td style={{ padding: '14px 12px' }}>
+                      <td style={{ padding: '14px 12px', whiteSpace: 'nowrap' }}>
                         <button
                           onClick={() => handleToggleActive(u)}
                           style={{
@@ -853,7 +840,7 @@ export const UserManagementView: React.FC = () => {
                           {u.isActive ? '● ACTIVE' : '○ INACTIVE'}
                         </button>
                       </td>
-                      <td style={{ padding: '14px 12px', textAlign: 'right' }}>
+                      <td style={{ padding: '14px 12px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                         <button
                           onClick={() => handleOpenMatrix(u)}
                           style={{
@@ -865,6 +852,7 @@ export const UserManagementView: React.FC = () => {
                             fontWeight: 600,
                             color: '#334155',
                             cursor: 'pointer',
+                            whiteSpace: 'nowrap',
                           }}
                         >
                           ⚙ Granular Permissions
@@ -875,6 +863,73 @@ export const UserManagementView: React.FC = () => {
                 })}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card View for Active Users */}
+          <div className="mobile-card-view">
+            {filteredApprovedUsers.map((u) => {
+              const meta = ROLES_METADATA[u.role] || ROLES_METADATA.VIEWER;
+              return (
+                <div key={`m-u-${u.id}`} className="mobile-card-item">
+                  <div className="mobile-card-header">
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '14px', color: '#0f172a' }}>{u.fullName}</div>
+                      <div style={{ fontSize: '12px', color: '#64748b' }}>{u.email}</div>
+                    </div>
+                    <button
+                      onClick={() => handleToggleActive(u)}
+                      style={{
+                        padding: '3px 8px',
+                        borderRadius: '999px',
+                        border: 'none',
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        background: u.isActive ? '#ecfdf5' : '#fef2f2',
+                        color: u.isActive ? '#065f46' : '#991b1b',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {u.isActive ? '● ACTIVE' : '○ INACTIVE'}
+                    </button>
+                  </div>
+
+                  <div className="mobile-card-grid" style={{ gridTemplateColumns: '1fr' }}>
+                    <div className="mobile-card-field">
+                      <span className="mobile-card-field-label">ASSIGNED ROLE</span>
+                      <select
+                        value={u.role}
+                        onChange={(e) => handleRoleChange(u.id, e.target.value as UserRole)}
+                        style={{
+                          padding: '6px 10px',
+                          borderRadius: '8px',
+                          border: `1px solid ${meta.borderBadge}`,
+                          background: meta.bgBadge,
+                          color: meta.colorBadge,
+                          fontSize: '12.5px',
+                          fontWeight: 700,
+                          marginTop: '4px',
+                        }}>
+                        <option value="ADMIN">ADMIN</option>
+                        <option value="QC">QC</option>
+                        <option value="PRODUCTION">PRODUCTION</option>
+                        <option value="VIEWER">VIEWER (Read-only)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="mobile-card-actions">
+                    <button
+                      onClick={() => handleOpenMatrix(u)}
+                      className="btn-outline"
+                      style={{ flex: 1, padding: '7px 12px', fontSize: '12px', justifyContent: 'center' }}
+                    >
+                      ⚙ Granular Permissions
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

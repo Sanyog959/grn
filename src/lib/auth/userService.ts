@@ -23,6 +23,7 @@ const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const ADMIN_EMAILS = [
   'sales@sanyogengineers.co.in',
   'magarsudhakar51@gmail.com',
+  'vishalmagar9579@gmail.com',
   (process.env.ADMIN_NOTIFICATION_EMAIL || '').toLowerCase().trim(),
   (process.env.SMTP_USER || '').toLowerCase().trim(),
 ].filter(Boolean);

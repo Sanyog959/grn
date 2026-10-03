@@ -1,0 +1,79 @@
+[
+  {
+    "itemCode": "ITM-01",
+    "itemName": "Precision Machined Flange (Steel)",
+    "category": "Machined Parts",
+    "hsnCode": "7307",
+    "uom": "PCS",
+    "defaultPrice": 500,
+    "minStock": 20,
+    "reorderQty": 50,
+    "status": "ACTIVE"
+  },
+  {
+    "itemCode": "ITM-02",
+    "itemName": "Heavy Duty Hex Bolts M16 (Grade 8.8)",
+    "category": "Fasteners",
+    "hsnCode": "7318",
+    "uom": "PCS",
+    "defaultPrice": 60,
+    "minStock": 100,
+    "reorderQty": 500,
+    "status": "ACTIVE"
+  },
+  {
+    "itemCode": "ITM-03",
+    "itemName": "Hydraulic Cylinder Bore Tube (Alloy)",
+    "category": "Raw Material",
+    "hsnCode": "8412",
+    "uom": "MTR",
+    "defaultPrice": 1450,
+    "minStock": 10,
+    "reorderQty": 25,
+    "status": "ACTIVE"
+  },
+  {
+    "itemCode": "ITM-04",
+    "itemName": "Nitril O-Ring High Temp Seal Kit",
+    "category": "Consumables",
+    "hsnCode": "4016",
+    "uom": "SET",
+    "defaultPrice": 220,
+    "minStock": 30,
+    "reorderQty": 100,
+    "status": "ACTIVE"
+  },
+  {
+    "itemCode": "ITM-05",
+    "itemName": "Cast Iron Bearing Housing Bracket",
+    "category": "Castings",
+    "hsnCode": "8483",
+    "uom": "NOS",
+    "defaultPrice": 850,
+    "minStock": 15,
+    "reorderQty": 40,
+    "status": "ACTIVE"
+  },
+  {
+    "itemCode": "ITM-06",
+    "itemName": "Stainless Steel Sheet 2mm (SS304)",
+    "category": "Raw Material",
+    "hsnCode": "7219",
+    "uom": "KG",
+    "defaultPrice": 320,
+    "minStock": 50,
+    "reorderQty": 200,
+    "status": "ACTIVE"
+  },
+  {
+    "itemCode": "ITM-07",
+    "itemName": "Brass Bushing Sleeve (Self-Lubricating)",
+    "category": "Machined Parts",
+    "hsnCode": "8483",
+    "uom": "PCS",
+    "defaultPrice": 180,
+    "minStock": 40,
+    "reorderQty": 100,
+    "status": "ACTIVE"
+  }
+]

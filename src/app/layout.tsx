@@ -13,13 +13,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        <div className="aurora-bg-ambient">
-          <div className="aurora-glow-1"></div>
-          <div className="aurora-glow-2"></div>
-          <div className="aurora-glow-3"></div>
-        </div>
-        <div style={{ position: "relative", zIndex: 1 }}>{children}</div>
+      <body className="bg-slate-50 text-slate-900 antialiased selection:bg-blue-100 selection:text-blue-900">
+        <div style={{ position: "relative", zIndex: 1, minHeight: "100vh" }}>{children}</div>
       </body>
     </html>
   );

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { GRNOrder, GRNItem, Vendor } from '@/types/inventory';
+import { DollarSign, CheckCircle2, Clock, Building2 } from 'lucide-react';
 
 interface KpiMetricsProps {
   orders: GRNOrder[];
@@ -43,292 +44,171 @@ export const KpiMetrics: React.FC<KpiMetricsProps> = ({
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
-        gap: '14px',
-        marginBottom: '24px',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))',
+        gap: '10px',
+        marginBottom: '16px',
       }}
     >
-      {/* Metric 1: Total Inward Consignment Value (Only if GRN view is granted) */}
+      {/* Metric 1: Total Inward Value */}
       {canViewGrn && (
         <div
-          className="glass-panel"
+          className="card-compact"
           style={{
-            padding: '20px 22px',
-            position: 'relative',
-            overflow: 'hidden',
+            padding: '12px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderLeft: '3px solid #0f172a',
           }}
         >
+          <div>
+            <p style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+              Total Inward Value
+            </p>
+            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px', letterSpacing: '-0.02em' }}>
+              ${totalValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            </h3>
+            <p style={{ fontSize: '11px', color: '#64748b', marginTop: '1px' }}>
+              {orders.length} GRNs ({totalItemsCount} units)
+            </p>
+          </div>
           <div
             style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '3px',
-              background: 'var(--grad-aurora)',
+              width: '32px',
+              height: '32px',
+              borderRadius: '6px',
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#0f172a',
             }}
-          />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <p
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  color: 'var(--text-secondary)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.04em',
-                }}
-              >
-                Total Inward Value
-              </p>
-              <h3
-                style={{
-                  fontSize: '26px',
-                  fontWeight: 800,
-                  color: 'var(--text-main)',
-                  marginTop: '6px',
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                ${totalValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-              </h3>
-            </div>
-            <div
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '10px',
-                background: 'rgba(99, 102, 241, 0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '18px',
-                color: '#4f46e5',
-              }}
-            >
-              📦
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '14px', fontSize: '12.5px' }}>
-            <span style={{ color: '#059669', fontWeight: 700, background: '#ecfdf5', padding: '2px 6px', borderRadius: '4px' }}>
-              ↑ +18.4%
-            </span>
-            <span style={{ color: 'var(--text-muted)' }}>
-              Across {orders.length} GRNs ({totalItemsCount.toLocaleString()} units)
-            </span>
+          >
+            <DollarSign size={16} />
           </div>
         </div>
       )}
 
-      {/* Metric 2: Quality Acceptance Rate (Only if QC view is granted) */}
+      {/* Metric 2: QC Acceptance Rate */}
       {canViewQc && (
         <div
-          className="glass-panel"
+          className="card-compact"
           style={{
-            padding: '20px 22px',
-            position: 'relative',
-            overflow: 'hidden',
+            padding: '12px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderLeft: '3px solid #2563eb',
           }}
         >
+          <div>
+            <p style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+              QC Acceptance Rate
+            </p>
+            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#2563eb', marginTop: '2px', letterSpacing: '-0.02em' }}>
+              {acceptanceRate}%
+            </h3>
+            <p style={{ fontSize: '11px', color: '#64748b', marginTop: '1px' }}>
+              {totalAcceptedItems} passed · {totalRejectedItems} rejected
+            </p>
+          </div>
           <div
             style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '3px',
-              background: 'var(--grad-emerald)',
+              width: '32px',
+              height: '32px',
+              borderRadius: '6px',
+              background: '#eff6ff',
+              border: '1px solid #bfdbfe',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#2563eb',
             }}
-          />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <p
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  color: 'var(--text-secondary)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.04em',
-                }}
-              >
-                QC Acceptance Rate
-              </p>
-              <h3
-                style={{
-                  fontSize: '26px',
-                  fontWeight: 800,
-                  color: '#065f46',
-                  marginTop: '6px',
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                {acceptanceRate}%
-              </h3>
-            </div>
-            <div
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '10px',
-                background: 'rgba(16, 185, 129, 0.12)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '18px',
-                color: '#059669',
-              }}
-            >
-              🛡
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '14px', fontSize: '12.5px' }}>
-            <span style={{ color: '#059669', fontWeight: 600 }}>
-              {totalAcceptedItems.toLocaleString()} passed
-            </span>
-            <span style={{ color: 'var(--text-muted)' }}>·</span>
-            <span style={{ color: '#e11d48', fontWeight: 600 }}>
-              {totalRejectedItems} rejected items
-            </span>
+          >
+            <CheckCircle2 size={16} />
           </div>
         </div>
       )}
 
-      {/* Metric 3: Pending QC Inspection (Only if QC view is granted) */}
+      {/* Metric 3: Pending QC Inward */}
       {canViewQc && (
         <div
-          className="glass-panel"
+          className="card-compact"
           style={{
-            padding: '20px 22px',
-            position: 'relative',
-            overflow: 'hidden',
+            padding: '12px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderLeft: '3px solid #475569',
           }}
         >
+          <div>
+            <p style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+              Pending QC Inward
+            </p>
+            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px', letterSpacing: '-0.02em' }}>
+              {pendingGrnCount} <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748b' }}>Batches</span>
+            </h3>
+            <p style={{ fontSize: '11px', color: '#64748b', marginTop: '1px' }}>
+              {pendingGrnCount > 0 ? 'Requires sign-off' : 'Dock queue clear'}
+            </p>
+          </div>
           <div
             style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '3px',
-              background: 'var(--grad-amber)',
+              width: '32px',
+              height: '32px',
+              borderRadius: '6px',
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#475569',
             }}
-          />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <p
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  color: 'var(--text-secondary)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.04em',
-                }}
-              >
-                Pending QC Inward
-              </p>
-              <h3
-                style={{
-                  fontSize: '26px',
-                  fontWeight: 800,
-                  color: '#92400e',
-                  marginTop: '6px',
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                {pendingGrnCount} Batches
-              </h3>
-            </div>
-            <div
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '10px',
-                background: 'rgba(245, 158, 11, 0.12)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '18px',
-                color: '#d97706',
-              }}
-            >
-              ⏳
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '14px', fontSize: '12.5px' }}>
-            <span style={{ color: '#b45309', fontWeight: 600, background: '#fef3c7', padding: '2px 6px', borderRadius: '4px' }}>
-              Requires Inspector Sign-off
-            </span>
-            <span style={{ color: 'var(--text-muted)' }}>Zone-A & Bay-4</span>
+          >
+            <Clock size={16} />
           </div>
         </div>
       )}
 
-      {/* Metric 4: Verified Suppliers (Only if Suppliers/Masters view is granted) */}
+      {/* Metric 4: Active Suppliers */}
       {canViewVendors && (
         <div
-          className="glass-panel"
+          className="card-compact"
           style={{
-            padding: '20px 22px',
-            position: 'relative',
-            overflow: 'hidden',
+            padding: '12px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderLeft: '3px solid #0f172a',
           }}
         >
+          <div>
+            <p style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+              Active Suppliers
+            </p>
+            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px', letterSpacing: '-0.02em' }}>
+              {activeVendorsCount} <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748b' }}>Vendors</span>
+            </h3>
+            <p style={{ fontSize: '11px', color: '#64748b', marginTop: '1px' }}>
+              {vendors.length} Total Registered
+            </p>
+          </div>
           <div
             style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '3px',
-              background: 'var(--grad-violet)',
+              width: '32px',
+              height: '32px',
+              borderRadius: '6px',
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#0f172a',
             }}
-          />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <p
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  color: 'var(--text-secondary)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.04em',
-                }}
-              >
-                Active Suppliers
-              </p>
-              <h3
-                style={{
-                  fontSize: '26px',
-                  fontWeight: 800,
-                  color: '#3730a3',
-                  marginTop: '6px',
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                {activeVendorsCount} Vendors
-              </h3>
-            </div>
-            <div
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '10px',
-                background: 'rgba(139, 92, 246, 0.12)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '18px',
-                color: '#7c3aed',
-              }}
-            >
-              🏭
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '14px', fontSize: '12.5px' }}>
-            <span style={{ color: '#4338ca', fontWeight: 600 }}>
-              98.2% On-Time SLA
-            </span>
-            <span style={{ color: 'var(--text-muted)' }}>· Avg rating 4.8★</span>
+          >
+            <Building2 size={16} />
           </div>
         </div>
       )}

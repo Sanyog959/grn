@@ -1,0 +1,97 @@
+[
+  {
+    "id": "PO-2026-003",
+    "poNumber": "PO-2026-003",
+    "vendorId": "VND-102",
+    "vendorName": "Nordic MicroSensors Inc.",
+    "poDate": "2026-10-01",
+    "deliveryDueDate": "2026-10-08",
+    "status": "COMPLETED",
+    "totalAmount": 59000,
+    "remarks": "Procured via Plant Central MIMS",
+    "items": [
+      {
+        "id": "poi-1790877213045-1",
+        "poId": "PO-2026-003",
+        "itemId": "ITM-01",
+        "itemCode": "ITM-01",
+        "description": "Precision Machined Flange (Steel)",
+        "orderedQty": 100,
+        "receivedQty": 100,
+        "acceptedQty": 0,
+        "pendingQty": 0,
+        "unitPrice": 500,
+        "taxPercent": 18,
+        "lineTotal": 59000
+      }
+    ]
+  },
+  {
+    "id": "po-demo-001",
+    "poNumber": "PO-2026-001",
+    "vendorId": "VND-101",
+    "vendorName": "Apex Precision Logistics",
+    "poDate": "2026-09-28",
+    "deliveryDueDate": "2026-10-05",
+    "status": "COMPLETED",
+    "totalAmount": 94400,
+    "remarks": "Monthly Production Material Supply",
+    "items": [
+      {
+        "id": "poi-demo-01",
+        "poId": "po-demo-001",
+        "itemId": "ITM-01",
+        "itemCode": "ITM-01",
+        "description": "Precision Machined Flange (Steel)",
+        "orderedQty": 100,
+        "receivedQty": 100,
+        "acceptedQty": 40,
+        "pendingQty": 0,
+        "unitPrice": 500,
+        "taxPercent": 18,
+        "lineTotal": 59000
+      },
+      {
+        "id": "poi-demo-02",
+        "poId": "po-demo-001",
+        "itemId": "ITM-02",
+        "itemCode": "ITM-02",
+        "description": "Heavy Duty Hex Bolts M16 (Grade 8.8)",
+        "orderedQty": 500,
+        "receivedQty": 500,
+        "acceptedQty": 200,
+        "pendingQty": 0,
+        "unitPrice": 60,
+        "taxPercent": 18,
+        "lineTotal": 35400
+      }
+    ]
+  },
+  {
+    "id": "po-demo-002",
+    "poNumber": "PO-2026-002",
+    "vendorId": "VND-102",
+    "vendorName": "Nordic MicroSensors Inc.",
+    "poDate": "2026-09-29",
+    "deliveryDueDate": "2026-10-10",
+    "status": "ISSUED",
+    "totalAmount": 70800,
+    "remarks": "Sensors consignment for Assembly Line 2",
+    "items": [
+      {
+        "id": "poi-demo-03",
+        "poId": "po-demo-002",
+        "itemId": "ITM-03",
+        "itemCode": "ITM-03",
+        "description": "Optical Proximity Sensor Array",
+        "orderedQty": 50,
+        "receivedQty": 0,
+        "acceptedQty": 0,
+        "pendingQty": 50,
+        "unitPrice": 1200,
+        "taxPercent": 18,
+        "lineTotal": 70800
+      }
+    ]
+  }
+]

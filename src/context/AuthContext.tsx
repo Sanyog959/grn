@@ -15,6 +15,7 @@ import {
 const ADMIN_EMAILS = [
   'sales@sanyogengineers.co.in',
   'magarsudhakar51@gmail.com',
+  'vishalmagar9579@gmail.com',
   (process.env.NEXT_PUBLIC_ADMIN_EMAIL || '').toLowerCase().trim(),
 ].filter(Boolean);
 

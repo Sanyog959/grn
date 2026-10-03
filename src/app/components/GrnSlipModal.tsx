@@ -29,7 +29,7 @@ export const GrnSlipModal: React.FC<GrnSlipModalProps> = ({
       <div
         className="modal-content"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: '820px', padding: '36px', background: '#ffffff' }}
+        style={{ maxWidth: '820px', padding: '18px 20px', background: '#ffffff' }}
       >
         {/* Actions bar */}
         <div
@@ -37,19 +37,19 @@ export const GrnSlipModal: React.FC<GrnSlipModalProps> = ({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '20px',
+            marginBottom: '16px',
             borderBottom: '1px solid #e2e8f0',
-            paddingBottom: '14px',
+            paddingBottom: '12px',
           }}
         >
-          <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748b' }}>
-            Document Preview · Official Inward Slip
+          <span style={{ fontSize: '12.5px', fontWeight: 600, color: '#64748b' }}>
+            Official Inward Warehouse Slip
           </span>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={handlePrint} className="btn-aurora" style={{ padding: '6px 14px', fontSize: '13px' }}>
-              🖨 Print / Save PDF
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={handlePrint} className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }}>
+              Print / Save PDF
             </button>
-            <button onClick={onClose} className="btn-secondary" style={{ padding: '6px 12px', fontSize: '13px' }}>
+            <button onClick={onClose} className="btn-outline" style={{ padding: '6px 12px', fontSize: '12px' }}>
               Close
             </button>
           </div>

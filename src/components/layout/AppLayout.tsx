@@ -158,9 +158,5 @@ const AppContent: React.FC<AppLayoutProps> = ({
 };
 
 export const AppLayout: React.FC<AppLayoutProps> = (props) => {
-  return (
-    <AuthProvider>
-      <AppContent {...props} />
-    </AuthProvider>
-  );
+  return <AppContent {...props} />;
 };

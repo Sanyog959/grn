@@ -43,7 +43,7 @@ export interface DatabaseGrnItemRow {
   unit: string;
   unit_price: number;
   batch_number: string | null;
-  qc_status: 'Passed' | 'Under Review' | 'Failed';
+  qc_status: 'Passed' | 'Under Review' | 'Failed' | 'HOLD' | 'Remark';
   rejection_reason: string | null;
   created_at?: string;
   updated_at?: string;

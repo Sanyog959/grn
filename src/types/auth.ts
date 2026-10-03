@@ -50,62 +50,64 @@ export interface RoleConfig {
   borderBadge: string;
 }
 
+export const PRIMARY_SYSTEM_ROLES: UserRole[] = ['ADMIN', 'QC', 'PRODUCTION', 'VIEWER'];
+
 export const ROLES_METADATA: Record<UserRole, RoleConfig> = {
   ADMIN: {
     name: 'ADMIN',
     label: 'Administrator',
-    description: 'Full master access, role management, user approval, and system configuration',
+    description: 'Full master access: PO creation, issue to production, dispatch, suppliers, and user management',
     colorBadge: '#6b21a8',
     bgBadge: '#f3e8ff',
     borderBadge: '#d8b4fe',
   },
-  PURCHASE: {
-    name: 'PURCHASE',
-    label: 'Purchase Officer',
-    description: 'PO creation, vendor directory management, and balance tracking',
-    colorBadge: '#1d4ed8',
-    bgBadge: '#dbeafe',
-    borderBadge: '#93c5fd',
-  },
   QC: {
     name: 'QC',
     label: 'Quality Inspector',
-    description: 'Dock inward material inspection, pass/reject decisions and defect logging',
+    description: 'Dock inward material inspection, pass/hold/reject decisions, and inspection history',
     colorBadge: '#b45309',
     bgBadge: '#fef3c7',
     borderBadge: '#fde68a',
   },
-  STORE: {
-    name: 'STORE',
-    label: 'Store / Warehouse',
-    description: 'Warehouse stock balances, production issues, returns, and dispatch check',
-    colorBadge: '#047857',
-    bgBadge: '#d1fae5',
-    borderBadge: '#6ee7b7',
-  },
   PRODUCTION: {
     name: 'PRODUCTION',
-    label: 'Production Engineer',
-    description: 'Shopfloor material issue requests, consumption, and unused returns',
+    label: 'Production Officer',
+    description: 'Shopfloor material reception, machining/assembly processing, and defect/yield reporting',
     colorBadge: '#0e7490',
     bgBadge: '#cffafe',
     borderBadge: '#67e8f9',
   },
-  DISPATCH: {
-    name: 'DISPATCH',
-    label: 'Dispatch Logistics',
-    description: 'Outbound sales delivery challans and customer order shipping',
-    colorBadge: '#4338ca',
-    bgBadge: '#e0e7ff',
-    borderBadge: '#a5b4fc',
-  },
   VIEWER: {
     name: 'VIEWER',
-    label: 'Auditor / Viewer',
-    description: 'Read-only access across inventory dashboards, ledgers, and reports',
+    label: 'General / Stock Viewer',
+    description: 'Read-only access (can see inventory and tracking data, cannot perform actions)',
     colorBadge: '#334155',
     bgBadge: '#f1f5f9',
     borderBadge: '#cbd5e1',
+  },
+  PURCHASE: {
+    name: 'PURCHASE',
+    label: 'Purchase Officer (Legacy)',
+    description: 'PO creation and supplier management',
+    colorBadge: '#1d4ed8',
+    bgBadge: '#dbeafe',
+    borderBadge: '#93c5fd',
+  },
+  STORE: {
+    name: 'STORE',
+    label: 'Store / Warehouse (Legacy)',
+    description: 'Warehouse stock balances and store issues',
+    colorBadge: '#047857',
+    bgBadge: '#d1fae5',
+    borderBadge: '#6ee7b7',
+  },
+  DISPATCH: {
+    name: 'DISPATCH',
+    label: 'Dispatch Logistics (Legacy)',
+    description: 'Outbound sales delivery challans',
+    colorBadge: '#4338ca',
+    bgBadge: '#e0e7ff',
+    borderBadge: '#a5b4fc',
   },
 };
 

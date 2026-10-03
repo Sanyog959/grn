@@ -80,173 +80,7 @@
       }
     },
     "createdAt": "2026-09-28T07:08:18.897Z",
-    "updatedAt": "2026-09-28T07:08:18.897Z"
-  },
-  {
-    "id": "usr-1790579300198-f472c8",
-    "email": "plant_worker_1790579298431@sanyogengineers.co.in",
-    "fullName": "Ramesh Kumar (QC Dock Inspector)",
-    "passwordHash": "f818f38ae644823337e2977572f63d11839e1123e499b0b925b69acec792120d",
-    "role": "QC",
-    "isActive": true,
-    "approvalStatus": "APPROVED",
-    "permissions": {
-      "dashboard": {
-        "canView": true,
-        "canCreate": false,
-        "canEdit": false,
-        "canDelete": false,
-        "canApprove": false
-      },
-      "purchase": {
-        "canView": true,
-        "canCreate": false,
-        "canEdit": false,
-        "canDelete": false,
-        "canApprove": false
-      },
-      "grn": {
-        "canView": true,
-        "canCreate": false,
-        "canEdit": false,
-        "canDelete": false,
-        "canApprove": false
-      },
-      "qc": {
-        "canView": true,
-        "canCreate": true,
-        "canEdit": true,
-        "canDelete": false,
-        "canApprove": true
-      },
-      "inventory": {
-        "canView": true,
-        "canCreate": false,
-        "canEdit": false,
-        "canDelete": false,
-        "canApprove": false
-      },
-      "production": {
-        "canView": false,
-        "canCreate": false,
-        "canEdit": false,
-        "canDelete": false,
-        "canApprove": false
-      },
-      "dispatch": {
-        "canView": false,
-        "canCreate": false,
-        "canEdit": false,
-        "canDelete": false,
-        "canApprove": false
-      },
-      "masters": {
-        "canView": true,
-        "canCreate": false,
-        "canEdit": false,
-        "canDelete": false,
-        "canApprove": false
-      },
-      "reports": {
-        "canView": true,
-        "canCreate": false,
-        "canEdit": false,
-        "canDelete": false,
-        "canApprove": false
-      },
-      "users": {
-        "canView": false,
-        "canCreate": false,
-        "canEdit": false,
-        "canDelete": false,
-        "canApprove": false
-      }
-    },
-    "createdAt": "2026-09-28T07:08:20.199Z",
-    "updatedAt": "2026-09-28T07:08:20.795Z"
-  },
-  {
-    "id": "usr-1790579587548-da7902",
-    "email": "vishalmagar9579@gmail.com",
-    "fullName": "Vishal Magar",
-    "passwordHash": "e1e97f85fa61a5ba31cddca5fb575a9b8591ddc1d88f6d91265aca33d33dd6ed",
-    "role": "STORE",
-    "isActive": true,
-    "approvalStatus": "APPROVED",
-    "permissions": {
-      "dashboard": {
-        "canView": true,
-        "canCreate": false,
-        "canEdit": false,
-        "canDelete": false,
-        "canApprove": false
-      },
-      "purchase": {
-        "canView": true,
-        "canCreate": false,
-        "canEdit": false,
-        "canDelete": false,
-        "canApprove": false
-      },
-      "grn": {
-        "canView": true,
-        "canCreate": true,
-        "canEdit": true,
-        "canDelete": false,
-        "canApprove": false
-      },
-      "qc": {
-        "canView": true,
-        "canCreate": false,
-        "canEdit": false,
-        "canDelete": false,
-        "canApprove": false
-      },
-      "inventory": {
-        "canView": true,
-        "canCreate": true,
-        "canEdit": true,
-        "canDelete": false,
-        "canApprove": true
-      },
-      "production": {
-        "canView": true,
-        "canCreate": true,
-        "canEdit": true,
-        "canDelete": false,
-        "canApprove": true
-      },
-      "dispatch": {
-        "canView": true,
-        "canCreate": true,
-        "canEdit": true,
-        "canDelete": false,
-        "canApprove": true
-      },
-      "masters": {
-        "canView": true,
-        "canCreate": false,
-        "canEdit": false,
-        "canDelete": false,
-        "canApprove": false
-      },
-      "reports": {
-        "canView": true,
-        "canCreate": false,
-        "canEdit": false,
-        "canDelete": false,
-        "canApprove": false
-      },
-      "users": {
-        "canView": false,
-        "canCreate": false,
-        "canEdit": false,
-        "canDelete": false,
-        "canApprove": false
-      }
-    },
-    "createdAt": "2026-09-28T07:13:07.548Z",
-    "updatedAt": "2026-09-28T18:02:16.406Z"
+    "updatedAt": "2026-09-29T13:55:00.000Z"
   },
   {
     "id": "usr-admin-sudhakar",
@@ -329,6 +163,255 @@
       }
     },
     "createdAt": "2026-09-28T17:40:05.820Z",
-    "updatedAt": "2026-09-28T17:40:05.822Z"
+    "updatedAt": "2026-09-29T13:55:00.000Z"
+  },
+  {
+    "id": "usr-1790579587548-da7902",
+    "email": "vishalmagar9579@gmail.com",
+    "fullName": "Vishal Magar",
+    "passwordHash": "e1e97f85fa61a5ba31cddca5fb575a9b8591ddc1d88f6d91265aca33d33dd6ed",
+    "role": "ADMIN",
+    "isActive": true,
+    "approvalStatus": "APPROVED",
+    "permissions": {
+      "dashboard": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "purchase": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "grn": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "qc": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "inventory": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "production": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "dispatch": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "masters": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "reports": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      },
+      "users": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canApprove": true
+      }
+    },
+    "createdAt": "2026-09-28T07:13:07.548Z",
+    "updatedAt": "2026-09-29T13:55:00.000Z"
+  },
+  {
+    "id": "usr-1790930119286-6390f8",
+    "email": "qc@gmail.com",
+    "fullName": "Marcas",
+    "passwordHash": "e1e97f85fa61a5ba31cddca5fb575a9b8591ddc1d88f6d91265aca33d33dd6ed",
+    "role": "QC",
+    "isActive": true,
+    "approvalStatus": "APPROVED",
+    "permissions": {
+      "dashboard": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "purchase": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "grn": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "qc": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": false,
+        "canApprove": true
+      },
+      "inventory": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "production": {
+        "canView": false,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "dispatch": {
+        "canView": false,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "masters": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "reports": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "users": {
+        "canView": false,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      }
+    },
+    "createdAt": "2026-10-02T08:35:19.287Z",
+    "updatedAt": "2026-10-02T08:35:59.076Z"
+  },
+  {
+    "id": "usr-1790930494568-e14b0e",
+    "email": "pr@gmail.com",
+    "fullName": "vance",
+    "passwordHash": "e1e97f85fa61a5ba31cddca5fb575a9b8591ddc1d88f6d91265aca33d33dd6ed",
+    "role": "PRODUCTION",
+    "isActive": true,
+    "approvalStatus": "APPROVED",
+    "permissions": {
+      "dashboard": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "purchase": {
+        "canView": false,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "grn": {
+        "canView": false,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "qc": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "inventory": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "production": {
+        "canView": true,
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "dispatch": {
+        "canView": false,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "masters": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "reports": {
+        "canView": true,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      },
+      "users": {
+        "canView": false,
+        "canCreate": false,
+        "canEdit": false,
+        "canDelete": false,
+        "canApprove": false
+      }
+    },
+    "createdAt": "2026-10-02T08:41:34.568Z",
+    "updatedAt": "2026-10-02T08:41:52.872Z"
   }
 ]

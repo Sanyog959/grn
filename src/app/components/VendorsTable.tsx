@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Vendor } from '@/types/inventory';
+import { Search, X, Plus, Building2 } from 'lucide-react';
 
 interface VendorsTableProps {
   vendors: Vendor[];
@@ -43,21 +44,21 @@ export const VendorsTable: React.FC<VendorsTableProps> = ({
   };
 
   return (
-    <div className="glass-panel" style={{ padding: '24px', marginBottom: '28px' }}>
+    <div className="card-compact" style={{ padding: '16px', marginBottom: '24px' }}>
       {/* Top Filter Bar */}
       <div
         style={{
           display: 'flex',
           flexWrap: 'wrap',
-          gap: '14px',
+          gap: '12px',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: '20px',
+          marginBottom: '16px',
         }}
       >
         {/* Search */}
-        <div className="search-box" style={{ width: '340px' }}>
-          <span className="search-icon">🔍</span>
+        <div className="search-box" style={{ width: '320px' }}>
+          <Search size={14} className="search-icon" />
           <input
             type="text"
             className="form-input"
@@ -65,33 +66,47 @@ export const VendorsTable: React.FC<VendorsTableProps> = ({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              style={{
+                position: 'absolute',
+                right: '8px',
+                background: 'none',
+                border: 'none',
+                color: '#94a3b8',
+                cursor: 'pointer',
+                padding: '2px',
+              }}
+            >
+              <X size={14} />
+            </button>
+          )}
         </div>
 
         {/* Status Filters & Add Button */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          {['ALL', 'Preferred', 'Active', 'On Probation'].map((status) => (
-            <button
-              key={status}
-              onClick={() => setStatusFilter(status)}
-              style={{
-                padding: '6px 12px',
-                fontSize: '12.5px',
-                fontWeight: 600,
-                borderRadius: '8px',
-                border: statusFilter === status ? '1px solid #6366f1' : '1px solid #e2e8f0',
-                background: statusFilter === status ? '#eef2ff' : '#ffffff',
-                color: statusFilter === status ? '#4f46e5' : '#64748b',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              {status === 'ALL' ? `All Suppliers (${vendors.length})` : status}
-            </button>
-          ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          {['ALL', 'Preferred', 'Active', 'On Probation'].map((status) => {
+            const isActive = statusFilter === status;
+            return (
+              <button
+                key={status}
+                onClick={() => setStatusFilter(status)}
+                className={`filter-pill ${isActive ? 'active' : ''}`}
+              >
+                {status === 'ALL' ? `All Suppliers (${vendors.length})` : status}
+              </button>
+            );
+          })}
 
           {onOpenCreateVendor && (
-            <button onClick={onOpenCreateVendor} className="btn-aurora" style={{ padding: '7px 14px', fontSize: '13px' }}>
-              + Add Supplier
+            <button
+              onClick={onOpenCreateVendor}
+              className="btn-primary"
+              style={{ padding: '6px 12px', fontSize: '12px', height: '32px' }}
+            >
+              <Plus size={14} />
+              <span>Add Supplier</span>
             </button>
           )}
         </div>

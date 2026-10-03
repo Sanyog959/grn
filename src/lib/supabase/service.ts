@@ -192,7 +192,7 @@ export async function updateOrderStatusInDb(
 export async function updateItemQcInDb(
   client: SupabaseClient,
   itemId: string,
-  qcStatus: 'Passed' | 'Under Review' | 'Failed',
+  qcStatus: 'Passed' | 'Under Review' | 'Failed' | 'HOLD' | 'Remark',
   acceptedQty?: number,
   rejectedQty?: number,
   rejectionReason?: string

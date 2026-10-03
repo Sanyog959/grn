@@ -87,12 +87,24 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { itemId, qcStatus, acceptedQty, rejectedQty, rejectionReason } = body as {
+    const {
+      itemId,
+      qcStatus,
+      acceptedQty,
+      rejectedQty,
+      rejectionReason,
+      qcRemarks,
+      inspectedBy,
+      userRole,
+    } = body as {
       itemId: string;
-      qcStatus: 'Passed' | 'Under Review' | 'Failed';
+      qcStatus: 'Passed' | 'Under Review' | 'Failed' | 'HOLD' | 'Remark';
       acceptedQty?: number;
       rejectedQty?: number;
       rejectionReason?: string;
+      qcRemarks?: string;
+      inspectedBy?: string;
+      userRole?: string;
     };
 
     if (!itemId || !qcStatus) {
@@ -103,9 +115,65 @@ export async function PATCH(request: Request) {
     }
 
     // 1. Update local store
-    updateStoredItemQc(itemId, qcStatus, rejectionReason);
+    updateStoredItemQc(itemId, qcStatus, rejectionReason, qcRemarks, inspectedBy, acceptedQty, rejectedQty);
 
-    // 2. Try PostgreSQL
+    // Retrieve updated item details for stock logging
+    const allItems = getStoredItems();
+    const currentItem = allItems.find((it) => it.id === itemId);
+
+    // 2. Automatically log stock transaction if item is Passed, Failed, or Remarked
+    if (currentItem) {
+      try {
+        const { logStockTransaction } = await import('@/lib/store/inventoryStore');
+        const qty = qcStatus === 'Passed' ? (acceptedQty ?? currentItem.receivedQty) : 0;
+        const isScrap = Boolean(currentItem.isScrap);
+
+        if (qcStatus === 'Passed' && qty > 0) {
+          logStockTransaction({
+            itemCode: currentItem.itemCode,
+            itemName: currentItem.description,
+            transactionType: isScrap ? 'JUNK_SCRAP_VERIFY' : 'QC_ACCEPT',
+            referenceNumber: currentItem.grnNumber,
+            changeQty: isScrap ? 0 : qty,
+            location: isScrap ? 'SCRAP_VERIFIED' : 'STORE',
+            performedBy: inspectedBy || 'Quality Tester',
+            userRole: 'QC',
+            remarks: isScrap
+              ? `Junk/Scrap verification PASSED. ${qcRemarks || 'Material verified for recycling / salvage.'}`
+              : qcRemarks || 'Material inspected & passed QC standards. Accepted to Store.',
+          });
+        } else if (qcStatus === 'Failed') {
+          const failQty = rejectedQty ?? currentItem.receivedQty;
+          logStockTransaction({
+            itemCode: currentItem.itemCode,
+            itemName: currentItem.description,
+            transactionType: 'QC_REJECT',
+            referenceNumber: currentItem.grnNumber,
+            changeQty: 0,
+            location: 'REJECTED',
+            performedBy: inspectedBy || 'Quality Tester',
+            userRole: 'QC',
+            remarks: `REJECTED (${failQty} units): ${rejectionReason || qcRemarks || 'Failed QC dimensional/hardness threshold'}. Lot segregated.`,
+          });
+        } else if (qcStatus === 'Under Review' || qcStatus === 'Remark') {
+          logStockTransaction({
+            itemCode: currentItem.itemCode,
+            itemName: currentItem.description,
+            transactionType: 'QC_REMARK',
+            referenceNumber: currentItem.grnNumber,
+            changeQty: 0,
+            location: 'HOLD',
+            performedBy: inspectedBy || 'Quality Tester',
+            userRole: 'QC',
+            remarks: `QC REMARK / CONDITIONAL: ${qcRemarks || 'Technical remarks recorded for managerial review.'}`,
+          });
+        }
+      } catch (stockErr) {
+        console.warn('Stock ledger auto-logging fallback:', stockErr);
+      }
+    }
+
+    // 3. Try PostgreSQL
     try {
       await updateItemQcInPostgres(
         itemId,
@@ -118,7 +186,7 @@ export async function PATCH(request: Request) {
       console.warn('PostgreSQL item QC update fallback:', pgErr);
     }
 
-    // 3. Try Supabase Client
+    // 4. Try Supabase Client
     const supabase = getSupabaseFromRequest(request);
     if (supabase) {
       try {
@@ -135,9 +203,29 @@ export async function PATCH(request: Request) {
       }
     }
 
+    // 5. Broadcast notification to Admin for EVERY QC verdict: Approve, Reject, or Remark!
+    try {
+      const { notifyQcDecisionToAdmin } = await import('@/lib/email/mailer');
+      await notifyQcDecisionToAdmin({
+        grnNumber: currentItem?.grnNumber || 'QC-ITEM',
+        itemCode: currentItem?.itemCode || itemId,
+        description: currentItem?.description,
+        decision: qcStatus,
+        acceptedQty: acceptedQty ?? (qcStatus === 'Passed' ? (currentItem?.receivedQty || 0) : 0),
+        rejectedQty: rejectedQty ?? (qcStatus === 'Failed' ? (currentItem?.receivedQty || 0) : 0),
+        qcRemarks: qcRemarks || rejectionReason || 'Inspection completed',
+        rejectionReason,
+        inspectorName: inspectedBy || 'Quality Inspector',
+        isScrapVerification: Boolean(currentItem?.isScrap),
+      });
+    } catch (mailErr) {
+      console.warn('QC email notification fallback:', mailErr);
+    }
+
     return NextResponse.json({
       success: true,
-      message: `Item ${itemId} QC marked as ${qcStatus}`,
+      message: `Item ${itemId} QC marked as ${qcStatus} with remarks recorded & Admin notified by email`,
+      item: currentItem,
     });
   } catch (err) {
     console.error('Items PATCH error:', err);

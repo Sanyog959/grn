@@ -57,7 +57,7 @@ export const CreateVendorModal: React.FC<CreateVendorModalProps> = ({
       <div
         className="modal-content"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: '580px', padding: '28px' }}
+        style={{ maxWidth: '560px', padding: '18px 20px' }}
       >
         {/* Header */}
         <div
@@ -226,12 +226,12 @@ export const CreateVendorModal: React.FC<CreateVendorModalProps> = ({
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-            <button type="button" onClick={onClose} className="btn-secondary">
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+            <button type="button" onClick={onClose} className="btn-outline">
               Cancel
             </button>
-            <button type="submit" disabled={isSubmitting} className="btn-aurora">
-              {isSubmitting ? 'Registering Supplier...' : '✦ Save & Register Supplier'}
+            <button type="submit" disabled={isSubmitting} className="btn-primary">
+              {isSubmitting ? 'Registering Supplier...' : 'Save & Register Supplier'}
             </button>
           </div>
         </form>

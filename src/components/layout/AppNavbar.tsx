@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { ROLES_METADATA } from '@/types/auth';
+import { Menu, Layers, Database, LogOut, Shield } from 'lucide-react';
 
 interface AppNavbarProps {
   onOpenAuth: () => void;
@@ -18,7 +18,6 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
   onToggleMobileMenu,
 }) => {
   const { profile, role, signOut, isAuthenticated } = useAuth();
-  const currentRoleMeta = ROLES_METADATA[role] || ROLES_METADATA.VIEWER;
 
   return (
     <header
@@ -26,159 +25,148 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '10px 16px',
-        background: 'rgba(255, 255, 255, 0.96)',
-        backdropFilter: 'blur(16px)',
+        padding: '8px 14px',
+        background: '#ffffff',
         borderBottom: '1px solid #e2e8f0',
         position: 'sticky',
         top: 0,
         zIndex: 90,
+        height: '48px',
         gap: '8px',
       }}
     >
-      {/* Left: Mobile Hamburger + Brand */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        {/* Mobile Hamburger Drawer Trigger */}
+      {/* Left: Mobile Drawer Trigger + Brand */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <button
           onClick={onToggleMobileMenu}
           className="mobile-menu-btn"
-          aria-label="Toggle navigation menu"
+          aria-label="Toggle menu"
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: '36px',
-            height: '36px',
-            borderRadius: '8px',
-            border: '1px solid #cbd5e1',
+            width: '32px',
+            height: '32px',
+            borderRadius: '6px',
+            border: '1px solid #e2e8f0',
             background: '#f8fafc',
             color: '#0f172a',
-            fontSize: '18px',
             cursor: 'pointer',
           }}
         >
-          ☰
+          <Menu size={16} />
         </button>
 
         <div
           style={{
-            width: '34px',
-            height: '34px',
-            borderRadius: '8px',
-            background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
+            width: '28px',
+            height: '28px',
+            borderRadius: '6px',
+            background: '#0f172a',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#fff',
-            fontWeight: 800,
-            fontSize: '16px',
-            boxShadow: '0 3px 8px rgba(5, 150, 105, 0.25)',
+            color: '#ffffff',
             flexShrink: 0,
           }}
         >
-          🏭
+          <Layers size={15} />
         </div>
 
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
+            <span style={{ fontSize: '14.5px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
               MIMS
             </span>
             <span
               style={{
-                fontSize: '10px',
+                fontSize: '9.5px',
                 fontWeight: 700,
-                padding: '2px 6px',
+                padding: '1px 5px',
                 borderRadius: '4px',
-                background: '#f1f5f9',
-                color: '#475569',
+                background: '#eff6ff',
+                color: '#2563eb',
+                border: '1px solid #bfdbfe',
               }}
             >
-              OS
+              PLANT OS
             </span>
           </div>
-          <p className="desktop-only-text" style={{ fontSize: '11px', color: '#64748b', margin: 0 }}>
-            PO → GRN → QC → Store → Production → Dispatch
-          </p>
         </div>
       </div>
 
-      {/* Right Controls: Database Status, User Info */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        {/* Database Status Button */}
+      {/* Right Controls: Database & User Session */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
         <button
           onClick={onOpenDbSetup}
-          title={isConnected ? 'Connected to database' : 'Configure database'}
+          title={isConnected ? 'Database Connected' : 'Configure Database'}
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: '5px',
-            padding: '5px 10px',
-            borderRadius: '999px',
-            background: isConnected ? '#ecfdf5' : '#f8fafc',
-            border: `1px solid ${isConnected ? '#a7f3d0' : '#e2e8f0'}`,
-            fontSize: '11.5px',
+            padding: '4px 9px',
+            borderRadius: '6px',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            fontSize: '11px',
             fontWeight: 600,
-            color: isConnected ? '#065f46' : '#475569',
+            color: isConnected ? '#0f172a' : '#64748b',
             cursor: 'pointer',
           }}
         >
-          <span
-            style={{
-              width: '7px',
-              height: '7px',
-              borderRadius: '50%',
-              background: isConnected ? '#10b981' : '#94a3b8',
-            }}
-          />
-          <span className="desktop-only-text">{isConnected ? 'Supabase Live' : 'DB Settings'}</span>
+          <Database size={12} color={isConnected ? '#2563eb' : '#64748b'} />
+          <span className="desktop-only-text">{isConnected ? 'DB Active' : 'DB Settings'}</span>
         </button>
 
-        {/* User Profile Pill or Sign In Button */}
         {isAuthenticated && profile ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span
               style={{
-                padding: '2px 7px',
-                borderRadius: '5px',
-                fontSize: '11px',
-                fontWeight: 800,
-                background: currentRoleMeta.bgBadge,
-                color: currentRoleMeta.colorBadge,
-                border: `1px solid ${currentRoleMeta.borderBadge}`,
+                padding: '2px 6px',
+                borderRadius: '4px',
+                fontSize: '10.5px',
+                fontWeight: 700,
+                background: '#0f172a',
+                color: '#ffffff',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '3px',
               }}
             >
+              <Shield size={10} />
               {role}
             </span>
 
-            <div className="desktop-only-text" style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b', lineHeight: 1.2 }}>
-                {profile.fullName.split(' ')[0]}
-              </span>
-            </div>
+            <span className="desktop-only-text" style={{ fontSize: '11.5px', fontWeight: 600, color: '#334155' }}>
+              {profile.fullName.split(' ')[0]}
+            </span>
 
             <button
               onClick={() => signOut()}
               title="Sign Out"
               style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
                 background: '#f8fafc',
                 border: '1px solid #e2e8f0',
-                padding: '5px 10px',
+                padding: '4px 8px',
                 borderRadius: '6px',
-                fontSize: '11.5px',
-                color: '#64748b',
+                fontSize: '11px',
+                color: '#475569',
                 cursor: 'pointer',
                 fontWeight: 600,
               }}
             >
-              Sign Out
+              <LogOut size={12} />
+              <span className="desktop-only-text">Exit</span>
             </button>
           </div>
         ) : (
           <button
             onClick={onOpenAuth}
-            className="btn-aurora"
-            style={{ padding: '6px 12px', fontSize: '12px' }}
+            className="btn-accent"
+            style={{ padding: '4px 10px', fontSize: '11.5px' }}
           >
             Sign In
           </button>
