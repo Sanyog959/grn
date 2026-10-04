@@ -7,6 +7,12 @@ import {
 } from '@/lib/store/inventoryStore';
 import { PurchaseOrder } from '@/types/inventory';
 import { getPostgresPool } from '@/lib/db/postgres';
+import { getSupabaseFromRequest } from '@/lib/supabase/server';
+import {
+  fetchAllPurchaseOrdersFromDb,
+  createPurchaseOrderInDb,
+  updatePurchaseOrderStatusInDb,
+} from '@/lib/supabase/service';
 
 export async function GET(request: Request) {
   try {
@@ -14,7 +20,9 @@ export async function GET(request: Request) {
     const status = searchParams.get('status');
     const search = searchParams.get('search')?.toLowerCase();
 
-    // 1. Try PostgreSQL if available
+    const localPos = getStoredPurchaseOrders();
+
+    // 1. Try PostgreSQL Direct Connection
     const pool = getPostgresPool();
     if (pool) {
       try {
@@ -52,8 +60,9 @@ export async function GET(request: Request) {
               vendorName: r.vendor_name,
               poDate: r.po_date ? new Date(r.po_date).toISOString().split('T')[0] : '',
               deliveryDueDate: r.delivery_due_date ? new Date(r.delivery_due_date).toISOString().split('T')[0] : '',
-              status: r.status,
+              status: r.status === 'OPEN' ? 'ISSUED' : r.status === 'CLOSED' ? 'COMPLETED' : r.status,
               totalAmount: Number(r.total_amount) || 0,
+              priceType: r.price_type || 'WITH_GST',
               remarks: r.remarks || '',
               items: itemsByPo.get(r.po_number) || [],
             }));
@@ -81,12 +90,54 @@ export async function GET(request: Request) {
           client.release();
         }
       } catch (dbErr) {
-        console.warn('Postgres PO fetch error, fallback to local store:', dbErr);
+        console.warn('Postgres PO fetch notice:', dbErr);
       }
     }
 
-    // 2. Fallback to local store
-    let pos = getStoredPurchaseOrders();
+    // 2. Try Supabase REST Client
+    const supabase = getSupabaseFromRequest(request);
+    if (supabase) {
+      try {
+        const sbPos = await fetchAllPurchaseOrdersFromDb(supabase);
+        if (sbPos && sbPos.length > 0) {
+          // Merge with local store to ensure newly created local orders and their line items remain intact
+          const mergedMap = new Map<string, PurchaseOrder>();
+          localPos.forEach((p) => mergedMap.set(p.poNumber.toLowerCase(), p));
+          sbPos.forEach((p) => {
+            const localMatch = mergedMap.get(p.poNumber.toLowerCase());
+            if (localMatch && (!p.items || p.items.length === 0) && localMatch.items && localMatch.items.length > 0) {
+              p.items = localMatch.items;
+            }
+            mergedMap.set(p.poNumber.toLowerCase(), p);
+          });
+          let allPos = Array.from(mergedMap.values());
+
+          if (status && status !== 'ALL') {
+            allPos = allPos.filter((p) => p.status === status);
+          }
+          if (search) {
+            allPos = allPos.filter(
+              (p) =>
+                p.poNumber.toLowerCase().includes(search) ||
+                p.vendorName.toLowerCase().includes(search) ||
+                (p.remarks && p.remarks.toLowerCase().includes(search))
+            );
+          }
+
+          return NextResponse.json({
+            success: true,
+            source: 'supabase',
+            purchaseOrders: allPos,
+            total: allPos.length,
+          });
+        }
+      } catch (sbErr) {
+        console.warn('Supabase PO fetch fallback:', sbErr);
+      }
+    }
+
+    // 3. Fallback to Local Persistent Store
+    let pos = localPos;
     if (status && status !== 'ALL') {
       pos = pos.filter((p) => p.status === status);
     }
@@ -166,6 +217,7 @@ export async function POST(request: Request) {
         receivedQty: rec,
         pendingQty: Math.max(0, ordered - rec),
         acceptedQty: Number(it.acceptedQty) || 0,
+        unit: it.unit || 'PCS',
         unitPrice: price,
         taxPercent: tax,
         priceType: isWithoutGst ? 'WITHOUT_GST' : 'WITH_GST',
@@ -176,10 +228,20 @@ export async function POST(request: Request) {
     // Recompute total PO amount
     po.totalAmount = po.items.reduce((sum, it) => sum + it.lineTotal, 0);
 
-    // 1. Save in local store
+    // 1. Always save in local store first (Guarantees zero data loss)
     addStoredPurchaseOrder(po);
 
-    // 2. Try saving to PostgreSQL if connected
+    // 2. Try saving to Supabase Client
+    const supabase = getSupabaseFromRequest(request);
+    if (supabase) {
+      try {
+        await createPurchaseOrderInDb(supabase, po);
+      } catch (sbErr) {
+        console.warn('Supabase PO insert notice:', sbErr);
+      }
+    }
+
+    // 3. Try saving to PostgreSQL if direct connection is active
     const pool = getPostgresPool();
     if (pool) {
       try {
@@ -187,12 +249,13 @@ export async function POST(request: Request) {
         try {
           await client.query('BEGIN');
           await client.query(
-            `INSERT INTO public.purchase_orders (po_number, vendor_code, vendor_name, po_date, delivery_due_date, status, total_amount, remarks)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            `INSERT INTO public.purchase_orders (po_number, vendor_code, vendor_name, po_date, delivery_due_date, status, total_amount, price_type, remarks)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
              ON CONFLICT (po_number) DO UPDATE SET
                vendor_name = EXCLUDED.vendor_name,
                delivery_due_date = EXCLUDED.delivery_due_date,
                total_amount = EXCLUDED.total_amount,
+               price_type = EXCLUDED.price_type,
                remarks = EXCLUDED.remarks,
                status = EXCLUDED.status`,
             [
@@ -203,19 +266,23 @@ export async function POST(request: Request) {
               po.deliveryDueDate || null,
               po.status || 'ISSUED',
               po.totalAmount,
+              po.priceType || 'WITH_GST',
               po.remarks || null,
             ]
           );
 
           for (const it of po.items) {
             await client.query(
-              `INSERT INTO public.purchase_order_items (id, po_number, item_code, description, ordered_qty, received_qty, accepted_qty, pending_qty, unit, unit_price, tax_percent, line_total)
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+              `INSERT INTO public.purchase_order_items (id, po_number, item_code, description, ordered_qty, received_qty, accepted_qty, pending_qty, unit, unit_price, tax_percent, price_type, line_total)
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
                ON CONFLICT (id) DO UPDATE SET
                  ordered_qty = EXCLUDED.ordered_qty,
                  received_qty = EXCLUDED.received_qty,
                  pending_qty = EXCLUDED.pending_qty,
+                 unit = EXCLUDED.unit,
                  unit_price = EXCLUDED.unit_price,
+                 tax_percent = EXCLUDED.tax_percent,
+                 price_type = EXCLUDED.price_type,
                  line_total = EXCLUDED.line_total`,
               [
                 it.id,
@@ -229,6 +296,7 @@ export async function POST(request: Request) {
                 it.unit || 'PCS',
                 it.unitPrice,
                 it.taxPercent,
+                it.priceType || 'WITH_GST',
                 it.lineTotal,
               ]
             );
@@ -236,7 +304,7 @@ export async function POST(request: Request) {
           await client.query('COMMIT');
         } catch (dbErr) {
           await client.query('ROLLBACK');
-          console.warn('Postgres PO insert error (local store saved):', dbErr);
+          console.warn('Postgres PO insert notice:', dbErr);
         } finally {
           client.release();
         }
@@ -268,12 +336,41 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ success: false, error: 'Missing poNumber' }, { status: 400 });
     }
 
+    // 1. Update local store
     if (itemCode && receivedQtyToday !== undefined) {
       recordPoReceipt(poNumber, itemCode, Number(receivedQtyToday));
     }
 
     if (status) {
       updateStoredPurchaseOrder(poNumber, { status });
+    }
+
+    // 2. Update Supabase
+    const supabase = getSupabaseFromRequest(request);
+    if (supabase && status) {
+      try {
+        await updatePurchaseOrderStatusInDb(supabase, poNumber, status);
+      } catch (sbErr) {
+        console.warn('Supabase PO update notice:', sbErr);
+      }
+    }
+
+    // 3. Update PostgreSQL
+    const pool = getPostgresPool();
+    if (pool && status) {
+      try {
+        const client = await pool.connect();
+        try {
+          await client.query(
+            'UPDATE public.purchase_orders SET status = $1, updated_at = NOW() WHERE po_number = $2',
+            [status, poNumber]
+          );
+        } finally {
+          client.release();
+        }
+      } catch (pgErr) {
+        console.warn('Postgres PO update notice:', pgErr);
+      }
     }
 
     return NextResponse.json({

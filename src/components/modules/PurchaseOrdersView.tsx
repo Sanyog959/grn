@@ -338,6 +338,34 @@ export const PurchaseOrdersView: React.FC<PurchaseOrdersViewProps> = ({
     setIsSaving(true);
     const vendorObj = vendorList.find((v) => v.vendorName === newVendorName);
 
+    const calculatedItems = items.map((it, idx) => {
+      const qty = Number(it.orderedQty) || 1;
+      const price = Number(it.unitPrice) || 0;
+      const tax = priceType === 'WITH_GST' ? 18 : 0;
+      const lineTotal = priceType === 'WITH_GST'
+        ? Math.round(qty * price * 1.18 * 100) / 100
+        : Math.round(qty * price * 100) / 100;
+
+      return {
+        id: `poi-${Date.now()}-${idx}`,
+        poId: newPoNumber.trim(),
+        itemId: it.itemCode,
+        itemCode: it.itemCode,
+        description: it.description,
+        orderedQty: qty,
+        receivedQty: 0,
+        acceptedQty: 0,
+        pendingQty: qty,
+        unit: it.unit || 'PCS',
+        unitPrice: price,
+        taxPercent: tax,
+        priceType,
+        lineTotal,
+      };
+    });
+
+    const calculatedTotal = calculatedItems.reduce((sum, it) => sum + it.lineTotal, 0);
+
     const formattedPo: PurchaseOrder = {
       id: newPoNumber.trim(),
       poNumber: newPoNumber.trim(),
@@ -346,36 +374,33 @@ export const PurchaseOrdersView: React.FC<PurchaseOrdersViewProps> = ({
       poDate: new Date().toISOString().slice(0, 10),
       deliveryDueDate: newDeliveryDate,
       status: 'ISSUED',
-      totalAmount,
+      totalAmount: calculatedTotal,
       priceType,
       remarks: newRemarks,
-      items: items.map((it, idx) => ({
-        id: `poi-${Date.now()}-${idx}`,
-        poId: newPoNumber.trim(),
-        itemId: it.itemCode,
-        itemCode: it.itemCode,
-        description: it.description,
-        orderedQty: Number(it.orderedQty),
-        receivedQty: 0,
-        acceptedQty: 0,
-        pendingQty: Number(it.orderedQty),
-        unitPrice: Number(it.unitPrice),
-        taxPercent: priceType === 'WITH_GST' ? 0 : 0,
-        priceType,
-        lineTotal: Number(it.orderedQty) * Number(it.unitPrice),
-      })),
+      items: calculatedItems,
     };
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (typeof window !== 'undefined') {
+      const storedUrl = localStorage.getItem('aura_supabase_url');
+      const storedKey = localStorage.getItem('aura_supabase_key');
+      if (storedUrl) headers['x-supabase-url'] = storedUrl;
+      if (storedKey) headers['x-supabase-key'] = storedKey;
+    }
 
     try {
       const res = await fetch('/api/po', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(formattedPo),
       });
 
       if (res.ok) {
         setPurchaseOrders((prev) => [formattedPo, ...prev]);
         setIsCreateModalOpen(false);
+        fetchPurchaseOrders();
       } else {
         const data = await res.json();
         alert(`Error saving PO: ${data.error || 'Failed'}`);

@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "poNumber": "PO-TEST-1791107800780",
+    "vendorId": "VND-101",
+    "vendorName": "Apex Precision Logistics",
+    "poDate": "2026-10-04",
+    "status": "ISSUED",
+    "totalAmount": 59000,
+    "priceType": "WITH_GST",
+    "remarks": "Automated verification test",
+    "items": [
+      {
+        "itemCode": "ITM-01",
+        "description": "Precision Machined Flange",
+        "orderedQty": 100,
+        "unit": "PCS",
+        "unitPrice": 500,
+        "taxPercent": 18,
+        "priceType": "WITH_GST",
+        "lineTotal": 59000,
+        "id": "poi-1791107800881-0",
+        "poId": "PO-TEST-1791107800780",
+        "receivedQty": 0,
+        "pendingQty": 100,
+        "acceptedQty": 0
+      }
+    ]
+  }
+]
